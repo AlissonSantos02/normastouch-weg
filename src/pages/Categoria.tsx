@@ -1,16 +1,18 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { ArrowLeft, RefreshCw } from "lucide-react";
-import { categorias, normas } from "@/data/normas";
+import { categorias } from "@/data/normas";
 import { SearchBar } from "@/components/SearchBar";
 import { NormaCard } from "@/components/NormaCard";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useNormas } from "@/contexts/NormasContext";
 
 const Categoria = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const { normas } = useNormas();
 
   const categoria = categorias.find((cat) => cat.id === id);
   const normasCategoria = normas.filter((norma) => norma.categoria === id);

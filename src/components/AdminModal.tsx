@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,13 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Settings, Plus, Trash2 } from "lucide-react";
 import { Norma, Categoria } from "@/data/normas";
 import { useToast } from "@/hooks/use-toast";
+import { useNormas } from "@/contexts/NormasContext";
 
-interface AdminModalProps {
-  normas: Norma[];
-  onNormasChange: (normas: Norma[]) => void;
-}
-
-export const AdminModal = ({ normas, onNormasChange }: AdminModalProps) => {
+export const AdminModal = () => {
+  const { normas, setNormas } = useNormas();
   const [open, setOpen] = useState(false);
   const [editingNorma, setEditingNorma] = useState<Norma | null>(null);
   const [formData, setFormData] = useState({
@@ -51,7 +48,7 @@ export const AdminModal = ({ normas, onNormasChange }: AdminModalProps) => {
           ? { ...n, ...formData, ultimaAtualizacao: hoje }
           : n
       );
-      onNormasChange(updated);
+      setNormas(updated);
       toast({ title: "Norma atualizada com sucesso!" });
     } else {
       const newNorma: Norma = {
@@ -59,7 +56,7 @@ export const AdminModal = ({ normas, onNormasChange }: AdminModalProps) => {
         ...formData,
         ultimaAtualizacao: hoje,
       };
-      onNormasChange([...normas, newNorma]);
+      setNormas([...normas, newNorma]);
       toast({ title: "Norma adicionada com sucesso!" });
     }
 
@@ -68,7 +65,7 @@ export const AdminModal = ({ normas, onNormasChange }: AdminModalProps) => {
 
   const handleDelete = (id: string) => {
     if (confirm("Tem certeza que deseja excluir esta norma?")) {
-      onNormasChange(normas.filter((n) => n.id !== id));
+      setNormas(normas.filter((n) => n.id !== id));
       toast({ title: "Norma excluída com sucesso!" });
     }
   };
@@ -93,6 +90,9 @@ export const AdminModal = ({ normas, onNormasChange }: AdminModalProps) => {
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">Gerenciar Normas</DialogTitle>
+          <DialogDescription>
+            Adicione, edite ou exclua normas do sistema
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid md:grid-cols-2 gap-6">

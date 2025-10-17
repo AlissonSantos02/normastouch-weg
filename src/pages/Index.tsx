@@ -1,18 +1,10 @@
-import { useState, useEffect } from "react";
-import { categorias, normas as normasIniciais } from "@/data/normas";
+import { categorias } from "@/data/normas";
 import { CategoryButton } from "@/components/CategoryButton";
 import { AdminModal } from "@/components/AdminModal";
-import { Norma } from "@/data/normas";
+import { useNormas } from "@/contexts/NormasContext";
 
 const Index = () => {
-  const [normas, setNormas] = useState<Norma[]>(() => {
-    const saved = localStorage.getItem("normas");
-    return saved ? JSON.parse(saved) : normasIniciais;
-  });
-
-  useEffect(() => {
-    localStorage.setItem("normas", JSON.stringify(normas));
-  }, [normas]);
+  const { normas } = useNormas();
 
   const getNormasCount = (categoriaId: string) => {
     return normas.filter((norma) => norma.categoria === categoriaId).length;
@@ -105,7 +97,7 @@ const Index = () => {
       </footer>
 
       {/* Botão Admin Flutuante */}
-      <AdminModal normas={normas} onNormasChange={setNormas} />
+      <AdminModal />
     </div>
   );
 };
