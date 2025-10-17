@@ -17,8 +17,14 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 222 47% 11%;
-    --primary-foreground: 210 40% 98%;
+    /* Cores WEG - Azul escuro e vermelho */
+    --weg-blue: 210 100% 20%;
+    --weg-blue-light: 210 100% 30%;
+    --weg-red: 0 85% 45%;
+    --weg-red-light: 0 85% 55%;
+
+    --primary: 210 100% 20%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96%;
     --secondary-foreground: 222 47% 11%;
@@ -26,8 +32,8 @@ All colors MUST be HSL.
     --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
 
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 0 85% 45%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
@@ -37,6 +43,9 @@ All colors MUST be HSL.
     --ring: 222 84% 5%;
 
     --radius: 1rem;
+
+    /* Gradiente WEG */
+    --gradient-weg: linear-gradient(135deg, hsl(var(--weg-blue)) 0%, hsl(var(--weg-blue-light)) 50%, hsl(var(--weg-red)) 100%);
 
     /* Categoria: Montagem Elétrica - Azul */
     --electric-blue: 214 95% 50%;

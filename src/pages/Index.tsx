@@ -1,35 +1,61 @@
-import { categorias, normas } from "@/data/normas";
+import { useState, useEffect } from "react";
+import { categorias, normas as normasIniciais } from "@/data/normas";
 import { CategoryButton } from "@/components/CategoryButton";
+import { AdminModal } from "@/components/AdminModal";
+import { Norma } from "@/data/normas";
 
 const Index = () => {
+  const [normas, setNormas] = useState<Norma[]>(() => {
+    const saved = localStorage.getItem("normas");
+    return saved ? JSON.parse(saved) : normasIniciais;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("normas", JSON.stringify(normas));
+  }, [normas]);
+
   const getNormasCount = (categoriaId: string) => {
     return normas.filter((norma) => norma.categoria === categoriaId).length;
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="bg-card shadow-md border-b border-border">
-        <div className="container mx-auto px-6 py-8">
+      {/* Header WEG Estilizado */}
+      <header className="relative bg-gradient-to-r from-[hsl(var(--weg-blue))] via-[hsl(var(--weg-blue-light))] to-[hsl(var(--weg-red))] shadow-xl overflow-hidden">
+        {/* Padrão decorativo de fundo */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2" />
+        </div>
+        
+        <div className="container mx-auto px-6 py-8 relative z-10">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="text-5xl">📋</div>
+            <div className="flex items-center gap-6">
+              <div className="text-6xl drop-shadow-lg animate-pulse">📋</div>
               <div>
-                <h1 className="text-4xl font-bold text-foreground">
-                  Painel Digital de Normas WEG
+                <h1 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg tracking-tight">
+                  Painel Digital de Normas
                 </h1>
-                <p className="text-muted-foreground text-lg mt-1">
-                  Sistema de consulta rápida de documentos técnicos
-                </p>
+                <div className="flex items-center gap-3 mt-2">
+                  <div className="h-1 w-12 bg-[hsl(var(--weg-red))] rounded-full" />
+                  <p className="text-white/90 text-lg font-medium">
+                    Sistema de consulta rápida de documentos técnicos
+                  </p>
+                </div>
               </div>
             </div>
             
-            {/* Logo WEG - Placeholder */}
-            <div className="hidden md:flex items-center justify-center w-32 h-20 bg-primary/10 rounded-xl">
-              <span className="text-3xl font-bold text-primary">WEG</span>
+            {/* Logo WEG Estilizada */}
+            <div className="hidden md:flex items-center justify-center w-40 h-24 bg-white/95 backdrop-blur rounded-2xl shadow-2xl border-4 border-white/30">
+              <span className="text-5xl font-black bg-gradient-to-br from-[hsl(var(--weg-blue))] to-[hsl(var(--weg-red))] bg-clip-text text-transparent">
+                WEG
+              </span>
             </div>
           </div>
         </div>
+        
+        {/* Linha decorativa inferior */}
+        <div className="h-2 bg-gradient-to-r from-[hsl(var(--weg-red))] via-white to-[hsl(var(--weg-blue))]" />
       </header>
 
       {/* Main Content */}
@@ -77,6 +103,9 @@ const Index = () => {
           <p>© 2024 WEG Equipamentos Elétricos • Painel Digital de Normas v1.0</p>
         </div>
       </footer>
+
+      {/* Botão Admin Flutuante */}
+      <AdminModal normas={normas} onNormasChange={setNormas} />
     </div>
   );
 };
