@@ -23,10 +23,9 @@ const Index = () => {
         <div className="container mx-auto px-6 py-8 relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
-              <div className="text-6xl drop-shadow-lg animate-pulse">📋</div>
               <div>
                 <h1 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg tracking-tight">
-                  Painel Digital de NormasS
+                  Painel Digital de Normas
                 </h1>
                 <div className="flex items-center gap-3 mt-2">
                   <div className="h-1 w-12 bg-[hsl(var(--weg-red))] rounded-full" />
