@@ -18,7 +18,7 @@ export const NormaCard = ({ norma }: NormaCardProps) => {
     }
   };
 
-  const handleDownload = (e: React.MouseEvent) => {
+{/*  const handleDownload = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (norma.pdfUrl) {
       toast.success("Download iniciado", {
@@ -29,7 +29,7 @@ export const NormaCard = ({ norma }: NormaCardProps) => {
         description: "Este documento não possui arquivo para download.",
       });
     }
-  };
+  };*/}
 
   return (
     <div
@@ -63,9 +63,9 @@ export const NormaCard = ({ norma }: NormaCardProps) => {
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Calendar className="w-4 h-4" />
           <span>Atualizado em {new Date(norma.ultimaAtualizacao).toLocaleDateString("pt-BR")}</span>
+          {/*
         </div>
-        
-        <button
+               <button
           onClick={handleDownload}
           className={cn(
             "flex items-center gap-2 px-4 py-2 rounded-lg",
@@ -76,7 +76,7 @@ export const NormaCard = ({ norma }: NormaCardProps) => {
           <Download className="w-4 h-4" />
           <span>Download</span>
         </button>
-      </div>
+      </div>*/}
     </div>
   );
 };
