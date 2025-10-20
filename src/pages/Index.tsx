@@ -80,7 +80,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-card border-t border-border py-5">
         <div className="container mx-auto px-8 text-center text-xs text-muted-foreground">
-          <p className="font-medium">© 2024 WEG Equipamentos Elétricos • Painel Digital de Normas v1.0</p>
+          <p className="font-medium">© 2025 WEG Equipamentos Elétricos • Painel Digital de Normas v1.0</p>
         </div>
       </footer>
 
