@@ -6,6 +6,7 @@ export interface Norma {
   categoria: Categoria;
   descricao?: string;
   pdfUrl?: string;
+  pdfPath?: string; // Caminho do arquivo no storage
   ultimaAtualizacao: string;
 }
 

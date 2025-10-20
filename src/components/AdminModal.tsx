@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Settings, Plus, Trash2 } from "lucide-react";
+import { Settings, Plus, Trash2, Upload, FileText, X } from "lucide-react";
 import { Norma, Categoria } from "@/data/normas";
 import { useToast } from "@/hooks/use-toast";
 import { useNormas } from "@/contexts/NormasContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast as sonnerToast } from "sonner";
 
 export const AdminModal = () => {
   const { normas, setNormas } = useNormas();
@@ -19,7 +21,12 @@ export const AdminModal = () => {
     categoria: "eletrica" as Categoria,
     descricao: "",
     pdfUrl: "",
+    pdfPath: "",
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const resetForm = () => {
@@ -28,11 +35,70 @@ export const AdminModal = () => {
       categoria: "eletrica",
       descricao: "",
       pdfUrl: "",
+      pdfPath: "",
     });
+    setSelectedFile(null);
     setEditingNorma(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFileSelect = (file: File) => {
+    if (file.type !== 'application/pdf') {
+      toast({ title: "Apenas arquivos PDF são permitidos", variant: "destructive" });
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      toast({ title: "Arquivo muito grande. Máximo: 20MB", variant: "destructive" });
+      return;
+    }
+    setSelectedFile(file);
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileSelect(e.dataTransfer.files[0]);
+    }
+  };
+
+  const uploadPdfToStorage = async (file: File): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('normas-pdfs')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Erro no upload:', uploadError);
+        return null;
+      }
+
+      return filePath;
+    } catch (error) {
+      console.error('Erro ao fazer upload:', error);
+      return null;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.titulo.trim()) {
@@ -40,33 +106,74 @@ export const AdminModal = () => {
       return;
     }
 
-    const hoje = new Date().toISOString().split("T")[0];
+    setUploading(true);
+    let pdfPath = formData.pdfPath;
 
-    if (editingNorma) {
-      const updated = normas.map((n) =>
-        n.id === editingNorma.id
-          ? { ...n, ...formData, ultimaAtualizacao: hoje }
-          : n
-      );
-      setNormas(updated);
-      toast({ title: "Norma atualizada com sucesso!" });
-    } else {
-      const newNorma: Norma = {
-        id: `${formData.categoria}-${Date.now()}`,
-        ...formData,
-        ultimaAtualizacao: hoje,
-      };
-      setNormas([...normas, newNorma]);
-      toast({ title: "Norma adicionada com sucesso!" });
+    try {
+      // Upload do arquivo se houver
+      if (selectedFile) {
+        sonnerToast.loading("Fazendo upload do PDF...");
+        const uploadedPath = await uploadPdfToStorage(selectedFile);
+        
+        if (!uploadedPath) {
+          toast({ title: "Erro ao fazer upload do arquivo", variant: "destructive" });
+          setUploading(false);
+          return;
+        }
+        
+        pdfPath = uploadedPath;
+        
+        // Deletar arquivo antigo se estiver editando
+        if (editingNorma?.pdfPath) {
+          await supabase.storage
+            .from('normas-pdfs')
+            .remove([editingNorma.pdfPath]);
+        }
+      }
+
+      const hoje = new Date().toISOString().split("T")[0];
+
+      if (editingNorma) {
+        const updated = normas.map((n) =>
+          n.id === editingNorma.id
+            ? { ...n, ...formData, pdfPath, ultimaAtualizacao: hoje }
+            : n
+        );
+        setNormas(updated);
+        sonnerToast.success("Norma atualizada com sucesso!");
+      } else {
+        const newNorma: Norma = {
+          id: `${formData.categoria}-${Date.now()}`,
+          ...formData,
+          pdfPath,
+          ultimaAtualizacao: hoje,
+        };
+        setNormas([...normas, newNorma]);
+        sonnerToast.success("Norma adicionada com sucesso!");
+      }
+
+      resetForm();
+    } catch (error) {
+      console.error('Erro ao salvar norma:', error);
+      toast({ title: "Erro ao salvar norma", variant: "destructive" });
+    } finally {
+      setUploading(false);
     }
-
-    resetForm();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Tem certeza que deseja excluir esta norma?")) {
+      const norma = normas.find(n => n.id === id);
+      
+      // Deletar arquivo do storage se existir
+      if (norma?.pdfPath) {
+        await supabase.storage
+          .from('normas-pdfs')
+          .remove([norma.pdfPath]);
+      }
+      
       setNormas(normas.filter((n) => n.id !== id));
-      toast({ title: "Norma excluída com sucesso!" });
+      sonnerToast.success("Norma excluída com sucesso!");
     }
   };
 
@@ -77,7 +184,9 @@ export const AdminModal = () => {
       categoria: norma.categoria,
       descricao: norma.descricao || "",
       pdfUrl: norma.pdfUrl || "",
+      pdfPath: norma.pdfPath || "",
     });
+    setSelectedFile(null);
   };
 
   return (
@@ -144,7 +253,7 @@ export const AdminModal = () => {
               </div>
 
               <div>
-                <Label htmlFor="pdfUrl">URL do PDF</Label>
+                <Label htmlFor="pdfUrl">URL do PDF (opcional)</Label>
                 <Input
                   id="pdfUrl"
                   value={formData.pdfUrl}
@@ -153,10 +262,74 @@ export const AdminModal = () => {
                 />
               </div>
 
+              {/* Upload de Arquivo */}
+              <div>
+                <Label>Upload de PDF</Label>
+                <div
+                  className={`mt-2 border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                    dragActive
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
+                >
+                  {selectedFile ? (
+                    <div className="flex items-center justify-between gap-3 bg-muted/50 p-3 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <FileText className="h-8 w-8 text-primary" />
+                        <div className="text-left">
+                          <p className="font-medium text-sm">{selectedFile.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setSelectedFile(null)}
+                        className="h-8 w-8"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                      <p className="text-sm font-medium mb-1">
+                        Arraste e solte um PDF ou clique para selecionar
+                      </p>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Máximo: 20MB
+                      </p>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => e.target.files && handleFileSelect(e.target.files[0])}
+                        className="hidden"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        Selecionar Arquivo
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+
               <div className="flex gap-2">
-                <Button type="submit" className="flex-1">
+                <Button type="submit" className="flex-1" disabled={uploading}>
                   <Plus className="h-4 w-4 mr-2" />
-                  {editingNorma ? "Atualizar" : "Adicionar"}
+                  {uploading ? "Salvando..." : editingNorma ? "Atualizar" : "Adicionar"}
                 </Button>
                 {editingNorma && (
                   <Button type="button" variant="outline" onClick={resetForm}>

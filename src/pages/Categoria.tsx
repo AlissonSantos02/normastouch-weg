@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { ArrowLeft, RefreshCw } from "lucide-react";
-import { categorias } from "@/data/normas";
+import { categorias, Norma } from "@/data/normas";
 import { SearchBar } from "@/components/SearchBar";
 import { NormaCard } from "@/components/NormaCard";
+import { PdfViewerModal } from "@/components/PdfViewerModal";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useNormas } from "@/contexts/NormasContext";
@@ -12,7 +13,14 @@ const Categoria = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedNorma, setSelectedNorma] = useState<Norma | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const { normas } = useNormas();
+
+  const handleOpenModal = (norma: Norma) => {
+    setSelectedNorma(norma);
+    setModalOpen(true);
+  };
 
   const categoria = categorias.find((cat) => cat.id === id);
   const normasCategoria = normas.filter((norma) => norma.categoria === id);
@@ -117,13 +125,20 @@ const Categoria = () => {
                   style={{ animationDelay: `${index * 50}ms` }}
                   className="animate-slide-up"
                 >
-                  <NormaCard norma={norma} />
+                  <NormaCard norma={norma} onOpenModal={handleOpenModal} />
                 </div>
               ))}
             </div>
           </>
         )}
       </main>
+
+      {/* Modal de Visualização de PDF */}
+      <PdfViewerModal
+        norma={selectedNorma}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+      />
     </div>
   );
 };

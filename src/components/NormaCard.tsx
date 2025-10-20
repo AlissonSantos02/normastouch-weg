@@ -1,28 +1,22 @@
-import { FileText, Download, Calendar } from "lucide-react";
+import { FileText, Calendar } from "lucide-react";
 import { Norma } from "@/data/normas";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 interface NormaCardProps {
   norma: Norma;
+  onOpenModal: (norma: Norma) => void;
 }
 
-export const NormaCard = ({ norma }: NormaCardProps) => {
-  const handleOpenPdf = () => {
-    if (norma.pdfUrl) {
-      window.open(norma.pdfUrl, "_blank");
-    } else {
-      toast.info("PDF não disponível", {
-        description: "Este documento ainda não possui um arquivo PDF vinculado.",
-      });
-    }
+export const NormaCard = ({ norma, onOpenModal }: NormaCardProps) => {
+  const handleClick = () => {
+    onOpenModal(norma);
   };
 
 
 
   return (
     <div
-      onClick={handleOpenPdf}
+      onClick={handleClick}
       className={cn(
         "group relative bg-card rounded-xl p-6 shadow-md hover:shadow-xl",
         "transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01]",
