@@ -8,80 +8,69 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 222 47% 11%;
-
+    /* Base colors - WEG Corporate */
+    --background: 0 0% 95.7%;
+    --foreground: 0 0% 20%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-
+    --card-foreground: 0 0% 20%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-
-    /* Cores WEG - Azul escuro e vermelho */
-    --weg-blue: 210 100% 20%;
-    --weg-blue-light: 210 100% 30%;
-    --weg-red: 0 85% 45%;
-    --weg-red-light: 0 85% 55%;
-
-    --primary: 210 100% 20%;
+    --popover-foreground: 0 0% 20%;
+    --primary: 205 100% 35%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-
-    --accent: 0 85% 45%;
+    --secondary: 210 14% 89%;
+    --secondary-foreground: 0 0% 20%;
+    --muted: 210 14% 89%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 196 100% 45%;
     --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 222 84% 5%;
-
-    --radius: 1rem;
-
-    /* Gradiente WEG */
-    --gradient-weg: linear-gradient(135deg, hsl(var(--weg-blue)) 0%, hsl(var(--weg-blue-light)) 50%, hsl(var(--weg-red)) 100%);
-
-    /* Categoria: Montagem Elétrica - Azul */
-    --electric-blue: 214 95% 50%;
-    --electric-blue-light: 214 95% 60%;
-    --electric-blue-dark: 214 95% 40%;
-
-    /* Categoria: Montagem Mecânica - Laranja */
-    --mechanical-orange: 25 95% 55%;
-    --mechanical-orange-light: 25 95% 65%;
-    --mechanical-orange-dark: 25 95% 45%;
-
-    /* Categoria: Processos - Verde */
-    --process-green: 142 76% 45%;
-    --process-green-light: 142 76% 55%;
-    --process-green-dark: 142 76% 35%;
-
-    /* Categoria: APT's - Rosa */
-    --apt-pink: 330 81% 60%;
-    --apt-pink-light: 330 81% 70%;
-    --apt-pink-dark: 330 81% 50%;
-
-    /* Gradientes */
-    --gradient-electric: linear-gradient(135deg, hsl(var(--electric-blue)) 0%, hsl(var(--electric-blue-light)) 100%);
-    --gradient-mechanical: linear-gradient(135deg, hsl(var(--mechanical-orange)) 0%, hsl(var(--mechanical-orange-light)) 100%);
-    --gradient-process: linear-gradient(135deg, hsl(var(--process-green)) 0%, hsl(var(--process-green-light)) 100%);
-    --gradient-apt: linear-gradient(135deg, hsl(var(--apt-pink)) 0%, hsl(var(--apt-pink-light)) 100%);
-
-    /* Sombras elegantes */
-    --shadow-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 16px -4px rgba(0, 0, 0, 0.15);
-    --shadow-lg: 0 8px 24px -8px rgba(0, 0, 0, 0.2);
-    --shadow-xl: 0 12px 32px -12px rgba(0, 0, 0, 0.25);
-
-    /* Transições suaves */
-    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 14% 85%;
+    --input: 214 14% 85%;
+    --ring: 205 100% 35%;
+    --radius: 0.5rem;
+    
+    /* WEG Brand Colors */
+    --weg-blue: 205 100% 35%;
+    --weg-blue-light: 196 100% 45%;
+    --weg-neutral: 0 0% 95.7%;
+    --weg-text: 0 0% 20%;
+    --weg-text-light: 0 0% 45%;
+    
+    /* Category Colors - Subtle Technical */
+    --electric-blue: 205 100% 35%;
+    --electric-blue-light: 205 100% 85%;
+    --electric-blue-dark: 205 100% 25%;
+    
+    --mechanical-orange: 205 100% 35%;
+    --mechanical-orange-light: 205 100% 85%;
+    --mechanical-orange-dark: 205 100% 25%;
+    
+    --process-green: 142 50% 45%;
+    --process-green-light: 142 50% 85%;
+    --process-green-dark: 142 50% 35%;
+    
+    --apt-pink: 205 100% 35%;
+    --apt-pink-light: 205 100% 85%;
+    --apt-pink-dark: 205 100% 25%;
+    
+    /* Shadows - Subtle */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+    --shadow-md: 0 2px 4px 0 rgb(0 0 0 / 0.05);
+    --shadow-lg: 0 4px 8px 0 rgb(0 0 0 / 0.08);
+    --shadow-xl: 0 8px 16px 0 rgb(0 0 0 / 0.1);
+    --shadow-blue: 0 4px 12px 0 rgb(0 102 179 / 0.15);
+    
+    /* Gradients - Removed for solid corporate look */
+    --gradient-weg: linear-gradient(135deg, hsl(var(--weg-blue)) 0%, hsl(var(--weg-blue)) 100%);
+    --gradient-electric: linear-gradient(135deg, hsl(var(--electric-blue)) 0%, hsl(var(--electric-blue)) 100%);
+    --gradient-mechanical: linear-gradient(135deg, hsl(var(--mechanical-orange)) 0%, hsl(var(--mechanical-orange)) 100%);
+    --gradient-process: linear-gradient(135deg, hsl(var(--process-green)) 0%, hsl(var(--process-green)) 100%);
+    --gradient-apt: linear-gradient(135deg, hsl(var(--apt-pink)) 0%, hsl(var(--apt-pink)) 100%);
+    
+    /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
