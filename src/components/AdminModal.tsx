@@ -112,15 +112,17 @@ export const AdminModal = () => {
     try {
       // Upload do arquivo se houver
       if (selectedFile) {
-        sonnerToast.loading("Fazendo upload do PDF...");
+        const uploadToastId = sonnerToast.loading("Fazendo upload do PDF...");
         const uploadedPath = await uploadPdfToStorage(selectedFile);
         
         if (!uploadedPath) {
+          sonnerToast.dismiss(uploadToastId);
           toast({ title: "Erro ao fazer upload do arquivo", variant: "destructive" });
           setUploading(false);
           return;
         }
         
+        sonnerToast.dismiss(uploadToastId);
         pdfPath = uploadedPath;
         
         // Deletar arquivo antigo se estiver editando
