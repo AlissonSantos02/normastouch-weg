@@ -42,6 +42,10 @@ export const PdfViewerModal = ({ norma, open, onOpenChange }: PdfViewerModalProp
   };
 
   const pdfUrl = getPdfUrl();
+  
+  // Detecta se é um visualizador web externo (não é um arquivo PDF direto)
+  const isExternalViewer = pdfUrl && !pdfUrl.toLowerCase().endsWith('.pdf');
+  const iframeSrc = isExternalViewer ? pdfUrl : `${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -70,7 +74,7 @@ export const PdfViewerModal = ({ norma, open, onOpenChange }: PdfViewerModalProp
         <div className="flex-1 bg-muted/30 overflow-hidden">
           {pdfUrl ? (
             <iframe
-              src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1`}
+              src={iframeSrc}
               className="w-full h-full"
               title={norma.titulo}
             />
