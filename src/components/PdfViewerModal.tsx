@@ -13,7 +13,27 @@ interface PdfViewerModalProps {
 export const PdfViewerModal = ({ norma, open, onOpenChange }: PdfViewerModalProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  if (!norma) return null;
+  // useEffect DEVE vir antes de qualquer early return
+  useEffect(() => {
+    if (!open) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onOpenChange(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = '';
+    };
+  }, [open, onOpenChange]);
+
+  // Early returns DEPOIS de todos os hooks
+  if (!norma || !open) return null;
 
   const getPdfUrl = () => {
     if (norma.pdfPath) {
@@ -37,26 +57,6 @@ export const PdfViewerModal = ({ norma, open, onOpenChange }: PdfViewerModalProp
       });
     }
   };
-
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && open) {
-        onOpenChange(false);
-      }
-    };
-
-    if (open) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = '';
-    };
-  }, [open, onOpenChange]);
-
-  if (!open) return null;
 
   const pdfUrl = getPdfUrl();
 
