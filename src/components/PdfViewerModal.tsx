@@ -73,9 +73,6 @@ export const PdfViewerModal = ({ norma, open, onOpenChange }: PdfViewerModalProp
       >
 
 
-        {/* Pop-up "abraçando" o modal */}
-        <PdfPreviewPopup open={open} />
-        {/* Header */}
         
         <div className="flex items-center justify-between px-8 py-6 bg-primary border-b border-border">
           <div className="flex items-center gap-4">
