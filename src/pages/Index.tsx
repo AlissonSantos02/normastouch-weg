@@ -18,7 +18,7 @@ const Index = () => {
           <div className="flex items-center justify-between">
             {/* Logo WEG */}
           <div className="flex items-center gap-4">
-            <div className="flex items-center justify-center w-36 h-20 rounded-lg shadow-sm">
+            <div className="flex items-center justify-center w-40 h-24 rounded-lg shadow-sm">
               <img
                 src="/logo-weg-branco.png"
                 alt="Logo WEG"
