@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { X, FileText, ExternalLink } from "lucide-react";
+import { X, FileText, ExternalLink, Monitor } from "lucide-react";
 import { Norma } from "@/data/normas";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -18,22 +18,41 @@ export const PdfViewerModal = ({ norma, open, onOpenChange }: PdfViewerModalProp
 
     const pdfUrl = getPdfUrl();
     
-    // Abre o pop-up automaticamente quando o modal abre
     if (pdfUrl) {
-      const width = 1000;
-      const height = 800;
-      const left = (window.screen.width / 2) - (width / 2);
-      const top = (window.screen.height / 2) - (height / 2);
+      // Configurações otimizadas do pop-up
+      const popupWidth = 1200;
+      const popupHeight = 900;
+      const left = Math.max(0, (window.screen.width / 2) - (popupWidth / 2));
+      const top = Math.max(0, (window.screen.height / 2) - (popupHeight / 2));
+
+      const features = [
+        `width=${popupWidth}`,
+        `height=${popupHeight}`,
+        `left=${left}`,
+        `top=${top}`,
+        'resizable=yes',           // Permite redimensionar
+        'scrollbars=yes',          // Mostra scrollbars
+        'status=yes',              // Mostra status (alguns navegadores)
+        'toolbar=no',              // Tenta esconder toolbar (ignorado)
+        'menubar=no',              // Tenta esconder menubar (ignorado)
+        'location=yes',            // Barra de endereço (sempre visível)
+        'directories=no',          // Sem diretórios
+        'chrome=yes',              // Chrome/frame do navegador
+        'centerscreen=yes',        // Centraliza (Firefox)
+      ].join(',');
 
       popupWindowRef.current = window.open(
         pdfUrl,
         'WEGDocViewer',
-        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes,toolbar=no,menubar=no,location=yes`
+        features
       );
 
-      // Verifica se o pop-up foi bloqueado
+      // Verifica bloqueio
       if (!popupWindowRef.current || popupWindowRef.current.closed) {
         console.warn('Pop-up bloqueado pelo navegador');
+      } else {
+        // Tenta focar no pop-up após abrir
+        popupWindowRef.current.focus();
       }
     }
 
@@ -46,7 +65,6 @@ export const PdfViewerModal = ({ norma, open, onOpenChange }: PdfViewerModalProp
     document.addEventListener('keydown', handleEscape);
     document.body.style.overflow = 'hidden';
 
-    // Cleanup: fecha o pop-up quando o modal for desmontado
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = '';
@@ -80,23 +98,31 @@ export const PdfViewerModal = ({ norma, open, onOpenChange }: PdfViewerModalProp
     const pdfUrl = getPdfUrl();
     if (!pdfUrl) return;
 
-    // Se o pop-up já existe e está aberto, foca nele
     if (popupWindowRef.current && !popupWindowRef.current.closed) {
       popupWindowRef.current.focus();
       return;
     }
 
-    // Caso contrário, abre um novo
-    const width = 1000;
-    const height = 800;
-    const left = (window.screen.width / 2) - (width / 2);
-    const top = (window.screen.height / 2) - (height / 2);
+    const popupWidth = 1200;
+    const popupHeight = 900;
+    const left = Math.max(0, (window.screen.width / 2) - (popupWidth / 2));
+    const top = Math.max(0, (window.screen.height / 2) - (popupHeight / 2));
 
-    popupWindowRef.current = window.open(
-      pdfUrl,
-      'WEGDocViewer',
-      `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes,toolbar=no,menubar=no,location=yes`
-    );
+    const features = [
+      `width=${popupWidth}`,
+      `height=${popupHeight}`,
+      `left=${left}`,
+      `top=${top}`,
+      'resizable=yes',
+      'scrollbars=yes',
+      'status=yes',
+    ].join(',');
+
+    popupWindowRef.current = window.open(pdfUrl, 'WEGDocViewer', features);
+    
+    if (popupWindowRef.current) {
+      popupWindowRef.current.focus();
+    }
   };
 
   const pdfUrl = getPdfUrl();
@@ -106,7 +132,6 @@ export const PdfViewerModal = ({ norma, open, onOpenChange }: PdfViewerModalProp
       className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm"
       onClick={closeModalAndPopup}
     >
-      {/* Container Central */}
       <div
         className="relative w-[90vw] h-[90vh] max-w-7xl bg-card border-2 border-border rounded-xl shadow-2xl flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -136,32 +161,39 @@ export const PdfViewerModal = ({ norma, open, onOpenChange }: PdfViewerModalProp
           </Button>
         </div>
 
-        {/* Área de Informação sobre Pop-up */}
-        <div className="flex-1 flex items-center justify-center bg-muted/30 p-8">
-          <div className="w-full max-w-4xl h-full bg-background border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-6 p-12 text-center">
-            <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
-              <ExternalLink className="w-12 h-12 text-primary" />
+        {/* Área Central */}
+        <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-muted/30 to-muted/10 p-8">
+          <div className="w-full max-w-4xl h-full bg-background/80 backdrop-blur-sm border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center gap-8 p-12 text-center">
+            
+            {/* Ícone animado */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+              <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+                <Monitor className="w-12 h-12 text-white" />
+              </div>
             </div>
             
-            <div className="space-y-2">
-              <h3 className="text-2xl font-semibold text-foreground">
-                Documento aberto em janela separada
+            <div className="space-y-3">
+              <h3 className="text-3xl font-bold text-foreground bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                Documento WEG Doc Aberto
               </h3>
-              <p className="text-muted-foreground max-w-md">
-                O documento foi aberto automaticamente em uma nova janela do navegador. 
-                Se não visualizar a janela, verifique se o bloqueador de pop-ups está ativo.
+              <p className="text-muted-foreground max-w-xl text-lg">
+                O documento foi aberto automaticamente em uma <strong>janela separada</strong> do navegador.
+              </p>
+              <p className="text-sm text-muted-foreground/80">
+                Verifique se o bloqueador de pop-ups não impediu a abertura.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 mt-4">
+            <div className="flex flex-col sm:flex-row gap-4 mt-6">
               <Button
                 onClick={handleReopenPopup}
                 size="lg"
-                className="gap-2"
+                className="gap-2 shadow-lg hover:shadow-xl transition-shadow"
                 disabled={!pdfUrl}
               >
                 <ExternalLink className="h-5 w-5" />
-                Reabrir WEG Doc
+                Reabrir / Focar Janela
               </Button>
               
               <Button
@@ -170,30 +202,49 @@ export const PdfViewerModal = ({ norma, open, onOpenChange }: PdfViewerModalProp
                 size="lg"
                 className="gap-2"
               >
+                <X className="h-5 w-5" />
                 Fechar Tudo
               </Button>
             </div>
 
             {!pdfUrl && (
-              <p className="text-sm text-destructive mt-4">
-                Nenhum PDF disponível para este documento
-              </p>
+              <div className="mt-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="text-sm text-destructive font-medium">
+                  ⚠️ Nenhum PDF disponível para este documento
+                </p>
+              </div>
             )}
 
-            <div className="mt-8 p-4 bg-muted rounded-lg max-w-lg">
-              <p className="text-xs text-muted-foreground">
-                💡 <strong>Dica:</strong> Ao fechar este modal, a janela do documento também será fechada automaticamente.
-              </p>
+            <div className="mt-8 p-5 bg-muted/50 rounded-xl max-w-lg border border-border/50">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-lg">💡</span>
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium text-foreground mb-1">
+                    Sincronização Automática
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Ao fechar este modal, a janela do documento será fechada automaticamente. 
+                    Pressione <kbd className="px-1.5 py-0.5 bg-background rounded text-xs border">ESC</kbd> para fechar tudo.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
         <div className="px-8 py-4 bg-card border-t border-border">
-          <p className="text-xs text-muted-foreground text-center">
-            Pressione <kbd className="px-2 py-1 bg-muted rounded text-xs">ESC</kbd> para fechar tudo • 
-            Última atualização: {new Date(norma.ultimaAtualizacao).toLocaleDateString("pt-BR")}
-          </p>
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>
+              Última atualização: {new Date(norma.ultimaAtualizacao).toLocaleDateString("pt-BR")}
+            </span>
+            <span className="flex items-center gap-2">
+              <kbd className="px-2 py-1 bg-muted rounded">ESC</kbd>
+              Fechar tudo
+            </span>
+          </div>
         </div>
       </div>
     </div>
