@@ -31,7 +31,7 @@ export const CategoryButton = ({ id, nome, icon, colorClass, normasCount = 0 }: 
     >
       {/* Icon Circle */}
       <div className={cn(
-        "flex items-center justify-center w-20 h-20 rounded-full bg-secondary",
+        "flex items-center justify-center w-200 h-200 rounded-full bg-secondary",
         "transition-transform duration-300 group-hover:scale-110"
       )}>
         <span className={cn("text-5xl", iconColors[colorClass as keyof typeof iconColors])}>
