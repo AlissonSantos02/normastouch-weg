@@ -1,3 +1,5 @@
+import React from "react";
+
 // Pop-up secundário
 const PdfPreviewPopup = ({ open }: { open: boolean }) => {
   if (!open) return null;
