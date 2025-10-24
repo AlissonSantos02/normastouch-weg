@@ -49,7 +49,7 @@ export const PdfViewerModal = ({ norma, open, onOpenChange }: PdfViewerModalProp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl h-[90vh] flex flex-col p-0 gap-0">
+      <DialogContent className="max-w-[98vw] h-[98vh] flex flex-col p-0 gap-0">
         {/* Cabeçalho WEG */}
         <DialogHeader className="px-8 py-6 bg-primary border-b border-border">
           <div className="flex items-center justify-between">
