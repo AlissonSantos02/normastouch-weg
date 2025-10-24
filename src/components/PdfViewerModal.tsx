@@ -1,6 +1,6 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, X, ExternalLink } from "lucide-react";
+import { X, ExternalLink, FileText } from "lucide-react";
 import { Norma } from "@/data/normas";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -11,6 +11,8 @@ interface PdfViewerModalProps {
 }
 
 export const PdfViewerModal = ({ norma, open, onOpenChange }: PdfViewerModalProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   if (!norma) return null;
 
   const getPdfUrl = () => {
@@ -21,98 +23,132 @@ export const PdfViewerModal = ({ norma, open, onOpenChange }: PdfViewerModalProp
     return norma.pdfUrl;
   };
 
-  const handleDownload = async () => {
+  const handleOpenExternal = () => {
     const pdfUrl = getPdfUrl();
-    if (!pdfUrl) return;
-
-    try {
-      const response = await fetch(pdfUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${norma.titulo}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Erro ao baixar PDF:', error);
+    if (pdfUrl) {
+      window.open(pdfUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
+  const handleFullscreen = () => {
+    if (containerRef.current && document.fullscreenEnabled) {
+      containerRef.current.requestFullscreen().catch((err) => {
+        console.log('Fullscreen not available:', err);
+      });
+    }
+  };
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && open) {
+        onOpenChange(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = '';
+    };
+  }, [open, onOpenChange]);
+
+  if (!open) return null;
+
   const pdfUrl = getPdfUrl();
-  
-  // Detecta se é um visualizador web externo (não é um arquivo PDF direto)
-  const isExternalViewer = pdfUrl && !pdfUrl.toLowerCase().endsWith('.pdf');
-  const iframeSrc = isExternalViewer ? pdfUrl : `${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1`;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[98vw] h-[98vh] flex flex-col p-0 gap-0">
-        {/* Cabeçalho WEG */}
-        <DialogHeader className="px-8 py-6 bg-primary border-b border-border">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-2xl font-bold text-white">
-              {norma.titulo}
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-              className="text-white hover:bg-white/20 h-10 w-10"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-          {norma.descricao && (
-            <p className="text-sm text-white/80 mt-2">{norma.descricao}</p>
-          )}
-        </DialogHeader>
-
-        {/* Área de Visualização do PDF */}
-        <div className="flex-1 bg-muted/30 overflow-hidden">
-          {pdfUrl ? (
-            <iframe
-              src={iframeSrc}
-              className="w-full h-full"
-              title={norma.titulo}
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center p-8">
-                <p className="text-muted-foreground text-lg mb-2">
-                  Nenhum PDF disponível para visualização
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Este documento ainda não possui um arquivo PDF vinculado.
-                </p>
-              </div>
+    <div
+      ref={containerRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm"
+      onClick={() => onOpenChange(false)}
+    >
+      {/* Container Central */}
+      <div
+        className="relative w-[90vw] h-[90vh] max-w-7xl bg-card border-2 border-border rounded-xl shadow-2xl flex flex-col overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-8 py-6 bg-primary border-b border-border">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
+              <FileText className="w-6 h-6 text-white" />
             </div>
-          )}
+            <div>
+              <h2 className="text-2xl font-bold text-white">
+                {norma.titulo}
+              </h2>
+              {norma.descricao && (
+                <p className="text-sm text-white/80 mt-1">{norma.descricao}</p>
+              )}
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onOpenChange(false)}
+            className="text-white hover:bg-white/20 h-10 w-10"
+          >
+            <X className="h-5 w-5" />
+          </Button>
         </div>
 
-        {/* Rodapé com Ações */}
-        {pdfUrl && (
-          <div className="px-8 py-4 bg-card border-t border-border flex gap-3 justify-end">
-            <Button
-              onClick={handleDownload}
-              variant="outline"
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Baixar PDF
-            </Button>
-            <Button
-              onClick={() => window.open(pdfUrl, '_blank')}
-              className="gap-2 bg-primary hover:bg-primary/90"
-            >
-              <ExternalLink className="h-4 w-4" />
-              Abrir em Nova Aba
-            </Button>
+        {/* Área de Visualização Simulada */}
+        <div className="flex-1 flex items-center justify-center bg-muted/30 p-8">
+          <div className="w-full max-w-4xl h-full bg-background border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-6 p-12 text-center">
+            <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
+              <FileText className="w-12 h-12 text-primary" />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-2xl font-semibold text-foreground">
+                Documento aberto em modo de visualização
+              </h3>
+              <p className="text-muted-foreground max-w-md">
+                Para melhor compatibilidade e segurança, clique no botão abaixo para acessar o conteúdo completo em uma nova aba do navegador.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 mt-4">
+              <Button
+                onClick={handleOpenExternal}
+                size="lg"
+                className="gap-2"
+                disabled={!pdfUrl}
+              >
+                <ExternalLink className="h-5 w-5" />
+                Abrir no WEG Doc
+              </Button>
+              
+              <Button
+                onClick={handleFullscreen}
+                variant="outline"
+                size="lg"
+                className="gap-2"
+              >
+                Modo Tela Cheia
+              </Button>
+            </div>
+
+            {!pdfUrl && (
+              <p className="text-sm text-destructive mt-4">
+                Nenhum PDF disponível para este documento
+              </p>
+            )}
           </div>
-        )}
-      </DialogContent>
-    </Dialog>
+        </div>
+
+        {/* Footer com Info */}
+        <div className="px-8 py-4 bg-card border-t border-border">
+          <p className="text-xs text-muted-foreground text-center">
+            Pressione <kbd className="px-2 py-1 bg-muted rounded text-xs">ESC</kbd> para fechar • 
+            Última atualização: {new Date(norma.ultimaAtualizacao).toLocaleDateString("pt-BR")}
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
