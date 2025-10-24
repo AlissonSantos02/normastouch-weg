@@ -20,7 +20,11 @@ const Index = () => {
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center w-28 h-16 bg-white rounded-lg shadow-sm">
                 <span className="text-4xl font-black text-primary">
-                  WEG
+                    <img
+                      src="/logo-weg-branco.png"
+                      alt="Logo WEG"
+                      className="w-full h-full object-contain"
+                    />
                 </span>
               </div>
             </div>
