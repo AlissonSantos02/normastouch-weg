@@ -23,7 +23,7 @@ export const CategoryButton = ({ id, nome, icon, colorClass, normasCount = 0 }: 
     <button
       onClick={() => navigate(`/categoria/${id}`)}
       className={cn(
-        "relative w-full h-40 rounded-lg bg-card border-2 border-border shadow-sm transition-all duration-300",
+        "relative w-full h-60 rounded-lg bg-card border-2 border-border shadow-sm transition-all duration-300",
         "flex items-center gap-6 px-8 text-left",
         "hover:shadow-[var(--shadow-blue)] hover:-translate-y-1",
         "touch-manipulation select-none group"
@@ -31,7 +31,7 @@ export const CategoryButton = ({ id, nome, icon, colorClass, normasCount = 0 }: 
     >
       {/* Icon Circle */}
       <div className={cn(
-        "flex items-center justify-center w-200 h-200 rounded-full bg-secondary",
+        "flex items-center justify-center w-20 h-20 rounded-full bg-secondary",
         "transition-transform duration-300 group-hover:scale-110"
       )}>
         <span className={cn("text-5xl", iconColors[colorClass as keyof typeof iconColors])}>
