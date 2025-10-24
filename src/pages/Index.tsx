@@ -17,17 +17,15 @@ const Index = () => {
         <div className="container mx-auto px-8 py-6">
           <div className="flex items-center justify-between">
             {/* Logo WEG */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center justify-center w-28 h-16 bg-white rounded-lg shadow-sm">
-                <span className="text-4xl font-black text-primary">
-                    <img
-                      src="/logo-weg-branco.png"
-                      alt="Logo WEG"
-                      className="w-full h-full object-contain"
-                    />
-                </span>
-              </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-28 h-16 bg-white rounded-lg shadow-sm">
+              <img
+                src="/logo-weg-branco.png"
+                alt="Logo WEG"
+                className="w-full h-full object-contain"
+              />
             </div>
+          </div>
             
             {/* Título e Subtítulo */}
             <div className="text-right">
