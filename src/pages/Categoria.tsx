@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import { categorias, Norma } from "@/data/normas";
 import { SearchBar } from "@/components/SearchBar";
@@ -8,6 +8,7 @@ import { PdfViewerModal } from "@/components/PdfViewerModal";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useNormas } from "@/contexts/NormasContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Categoria = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +17,13 @@ const Categoria = () => {
   const [selectedNorma, setSelectedNorma] = useState<Norma | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const { normas } = useNormas();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
 
   const handleOpenModal = (norma: Norma) => {
     setSelectedNorma(norma);
@@ -42,6 +50,14 @@ const Categoria = () => {
       description: "Todos os documentos foram sincronizados com sucesso.",
     });
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg">Carregando...</p>
+      </div>
+    );
+  }
 
   if (!categoria) {
     return (

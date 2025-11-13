@@ -1,14 +1,35 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { categorias } from "@/data/normas";
 import { CategoryButton } from "@/components/CategoryButton";
 import { AdminModal } from "@/components/AdminModal";
 import { useNormas } from "@/contexts/NormasContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 
 const Index = () => {
   const { normas } = useNormas();
+  const { user, role, loading, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
 
   const getNormasCount = (categoriaId: string) => {
     return normas.filter((norma) => norma.categoria === categoriaId).length;
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg">Carregando...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -28,13 +49,23 @@ const Index = () => {
             </div>
 
             {/* Título e Subtítulo */}
-            <div className="text-right">
-              <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-                Painel Digital de Normas
-              </h1>
-              <p className="text-white/80 text-base font-medium mt-2">
-                Sistema de consulta rápida de documentos técnicos
-              </p>
+            <div className="text-right flex items-center gap-4">
+              <div>
+                <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
+                  Painel Digital de Normas
+                </h1>
+                <p className="text-white/80 text-base font-medium mt-2">
+                  Sistema de consulta rápida de documentos técnicos
+                </p>
+              </div>
+              <Button 
+                onClick={signOut}
+                variant="outline"
+                size="icon"
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <LogOut className="h-5 w-5" />
+              </Button>
             </div>
           </div>
         </div>
@@ -88,8 +119,8 @@ const Index = () => {
         </div>
       </footer>
 
-      {/* Botão Admin Flutuante */}
-      <AdminModal />
+      {/* Botão Admin Flutuante - Apenas para Administradores */}
+      {role === 'admin' && <AdminModal />}
     </div>
   );
 };
