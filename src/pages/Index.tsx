@@ -9,21 +9,21 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 
 const Index = () => {
-  const { normas } = useNormas();
-  const { user, role, loading, signOut } = useAuth();
+  const { normas, loading: normasLoading } = useNormas();
+  const { user, role, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       navigate('/auth');
     }
-  }, [user, loading, navigate]);
+  }, [user, authLoading, navigate]);
 
   const getNormasCount = (categoriaId: string) => {
     return normas.filter((norma) => norma.categoria === categoriaId).length;
   };
 
-  if (loading) {
+  if (authLoading || normasLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-lg">Carregando...</p>

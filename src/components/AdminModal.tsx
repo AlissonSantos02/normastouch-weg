@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast as sonnerToast } from "sonner";
 
 export const AdminModal = () => {
-  const { normas, setNormas } = useNormas();
+  const { normas, addNorma, updateNorma, deleteNorma } = useNormas();
   const [open, setOpen] = useState(false);
   const [editingNorma, setEditingNorma] = useState<Norma | null>(null);
   const [formData, setFormData] = useState({
@@ -134,23 +134,29 @@ export const AdminModal = () => {
       }
 
       const hoje = new Date().toISOString().split("T")[0];
+      const pdfUrlFinal = pdfPath ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/normas-pdfs/${pdfPath}` : formData.pdfUrl;
 
       if (editingNorma) {
-        const updated = normas.map((n) =>
-          n.id === editingNorma.id
-            ? { ...n, ...formData, pdfPath, ultimaAtualizacao: hoje }
-            : n
-        );
-        setNormas(updated);
+        await updateNorma(editingNorma.id, {
+          titulo: formData.titulo,
+          categoria: formData.categoria,
+          descricao: formData.descricao,
+          pdfUrl: pdfUrlFinal,
+          pdfPath,
+          ultimaAtualizacao: hoje
+        });
         sonnerToast.success("Norma atualizada com sucesso!");
       } else {
         const newNorma: Norma = {
           id: `${formData.categoria}-${Date.now()}`,
-          ...formData,
+          titulo: formData.titulo,
+          categoria: formData.categoria,
+          descricao: formData.descricao,
+          pdfUrl: pdfUrlFinal,
           pdfPath,
           ultimaAtualizacao: hoje,
         };
-        setNormas([...normas, newNorma]);
+        await addNorma(newNorma);
         sonnerToast.success("Norma adicionada com sucesso!");
       }
 
@@ -174,7 +180,7 @@ export const AdminModal = () => {
           .remove([norma.pdfPath]);
       }
       
-      setNormas(normas.filter((n) => n.id !== id));
+      await deleteNorma(id);
       sonnerToast.success("Norma excluída com sucesso!");
     }
   };
