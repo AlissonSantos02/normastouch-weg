@@ -1,12 +1,25 @@
 import { useState, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Settings, Plus, Trash2, Upload, FileText, X } from "lucide-react";
-import { Norma, Categoria } from "@/data/normas";
+import { Norma, Categoria } from "@/contexts/NormasContext";
 import { useToast } from "@/hooks/use-toast";
 import { useNormas } from "@/contexts/NormasContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,7 +55,7 @@ export const AdminModal = () => {
   };
 
   const handleFileSelect = (file: File) => {
-    if (file.type !== 'application/pdf') {
+    if (file.type !== "application/pdf") {
       toast({ title: "Apenas arquivos PDF são permitidos", variant: "destructive" });
       return;
     }
@@ -67,7 +80,7 @@ export const AdminModal = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelect(e.dataTransfer.files[0]);
     }
@@ -75,32 +88,32 @@ export const AdminModal = () => {
 
   const uploadPdfToStorage = async (file: File): Promise<string | null> => {
     try {
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('normas-pdfs')
+        .from("normas-pdfs")
         .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
+          cacheControl: "3600",
+          upsert: false,
         });
 
       if (uploadError) {
-        console.error('Erro no upload:', uploadError);
+        console.error("Erro no upload:", uploadError);
         return null;
       }
 
       return filePath;
     } catch (error) {
-      console.error('Erro ao fazer upload:', error);
+      console.error("Erro ao fazer upload:", error);
       return null;
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.titulo.trim()) {
       toast({ title: "Título é obrigatório", variant: "destructive" });
       return;
@@ -110,31 +123,31 @@ export const AdminModal = () => {
     let pdfPath = formData.pdfPath;
 
     try {
-      // Upload do arquivo se houver
+      // Upload do arquivo, se houver
       if (selectedFile) {
         const uploadToastId = sonnerToast.loading("Fazendo upload do PDF...");
         const uploadedPath = await uploadPdfToStorage(selectedFile);
-        
+
         if (!uploadedPath) {
           sonnerToast.dismiss(uploadToastId);
           toast({ title: "Erro ao fazer upload do arquivo", variant: "destructive" });
           setUploading(false);
           return;
         }
-        
+
         sonnerToast.dismiss(uploadToastId);
         pdfPath = uploadedPath;
-        
-        // Deletar arquivo antigo se estiver editando
+
+        // Deleta o arquivo antigo se estiver editando
         if (editingNorma?.pdfPath) {
-          await supabase.storage
-            .from('normas-pdfs')
-            .remove([editingNorma.pdfPath]);
+          await supabase.storage.from("normas-pdfs").remove([editingNorma.pdfPath]);
         }
       }
 
       const hoje = new Date().toISOString().split("T")[0];
-      const pdfUrlFinal = pdfPath ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/normas-pdfs/${pdfPath}` : formData.pdfUrl;
+      const pdfUrlFinal = pdfPath
+        ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/normas-pdfs/${pdfPath}`
+        : formData.pdfUrl;
 
       if (editingNorma) {
         await updateNorma(editingNorma.id, {
@@ -143,7 +156,7 @@ export const AdminModal = () => {
           descricao: formData.descricao,
           pdfUrl: pdfUrlFinal,
           pdfPath,
-          ultimaAtualizacao: hoje
+          ultimaAtualizacao: hoje,
         });
         sonnerToast.success("Norma atualizada com sucesso!");
       } else {
@@ -162,7 +175,7 @@ export const AdminModal = () => {
 
       resetForm();
     } catch (error) {
-      console.error('Erro ao salvar norma:', error);
+      console.error("Erro ao salvar norma:", error);
       toast({ title: "Erro ao salvar norma", variant: "destructive" });
     } finally {
       setUploading(false);
@@ -171,15 +184,13 @@ export const AdminModal = () => {
 
   const handleDelete = async (id: string) => {
     if (confirm("Tem certeza que deseja excluir esta norma?")) {
-      const norma = normas.find(n => n.id === id);
-      
+      const norma = normas.find((n) => n.id === id);
+
       // Deletar arquivo do storage se existir
       if (norma?.pdfPath) {
-        await supabase.storage
-          .from('normas-pdfs')
-          .remove([norma.pdfPath]);
+        await supabase.storage.from("normas-pdfs").remove([norma.pdfPath]);
       }
-      
+
       await deleteNorma(id);
       sonnerToast.success("Norma excluída com sucesso!");
     }
@@ -200,16 +211,18 @@ export const AdminModal = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon" className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-xl z-50">
+        <Button
+          variant="outline"
+          size="icon"
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-xl z-50"
+        >
           <Settings className="h-6 w-6" />
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">Gerenciar Normas</DialogTitle>
-          <DialogDescription>
-            Adicione, edite ou exclua normas do sistema
-          </DialogDescription>
+          <DialogDescription>Adicione, edite ou exclua normas do sistema</DialogDescription>
         </DialogHeader>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -311,9 +324,7 @@ export const AdminModal = () => {
                       <p className="text-sm font-medium mb-1">
                         Arraste e solte um PDF ou clique para selecionar
                       </p>
-                      <p className="text-xs text-muted-foreground mb-3">
-                        Máximo: 20MB
-                      </p>
+                      <p className="text-xs text-muted-foreground mb-3">Máximo: 20MB</p>
                       <input
                         ref={fileInputRef}
                         type="file"
@@ -350,7 +361,9 @@ export const AdminModal = () => {
 
           {/* Lista de Normas */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Normas Cadastradas ({normas.length})</h3>
+            <h3 className="font-semibold text-lg">
+              Normas Cadastradas ({normas.length})
+            </h3>
             <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
               {normas.map((norma) => (
                 <div
