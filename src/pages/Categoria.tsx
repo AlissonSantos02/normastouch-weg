@@ -16,14 +16,14 @@ const Categoria = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedNorma, setSelectedNorma] = useState<Norma | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const { normas } = useNormas();
-  const { user, loading } = useAuth();
+  const { normas, loading: normasLoading, refreshNormas } = useNormas();
+  const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       navigate('/auth');
     }
-  }, [user, loading, navigate]);
+  }, [user, authLoading, navigate]);
 
   const handleOpenModal = (norma: Norma) => {
     setSelectedNorma(norma);
@@ -45,13 +45,14 @@ const Categoria = () => {
     );
   }, [searchTerm, normasCategoria]);
 
-  const handleAtualizarNormas = () => {
+  const handleAtualizarNormas = async () => {
+    await refreshNormas();
     toast.success("Normas atualizadas!", {
       description: "Todos os documentos foram sincronizados com sucesso.",
     });
   };
 
-  if (loading) {
+  if (authLoading || normasLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-lg">Carregando...</p>
