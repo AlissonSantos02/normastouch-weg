@@ -19,7 +19,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Settings, Plus, Trash2, Upload, FileText, X } from "lucide-react";
-import { Norma, Categoria } from "@/contexts/NormasContext";
+import { Norma } from "@/contexts/NormasContext";
+import { Categoria } from "@/data/normas";
 import { useToast } from "@/hooks/use-toast";
 import { useNormas } from "@/contexts/NormasContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -139,13 +140,12 @@ export const AdminModal = () => {
         pdfPath = uploadedPath;
 
         // Deleta o arquivo antigo se estiver editando
-        if (editingNorma?.pdfPath) {
-          await supabase.storage.from("normas-pdfs").remove([editingNorma.pdfPath]);
+        if (editingNorma?.pdf_path) {
+          await supabase.storage.from("normas-pdfs").remove([editingNorma.pdf_path]);
         }
       }
 
-      const hoje = new Date().toISOString().split("T")[0];
-      const pdfUrlFinal = pdfPath
+      const pdfUrl = pdfPath
         ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/normas-pdfs/${pdfPath}`
         : formData.pdfUrl;
 
@@ -154,22 +154,18 @@ export const AdminModal = () => {
           titulo: formData.titulo,
           categoria: formData.categoria,
           descricao: formData.descricao,
-          pdfUrl: pdfUrlFinal,
-          pdfPath,
-          ultimaAtualizacao: hoje,
+          pdf_url: pdfUrl,
+          pdf_path: pdfPath,
         });
         sonnerToast.success("Norma atualizada com sucesso!");
       } else {
-        const newNorma: Norma = {
-          id: `${formData.categoria}-${Date.now()}`,
+        await addNorma({
           titulo: formData.titulo,
           categoria: formData.categoria,
           descricao: formData.descricao,
-          pdfUrl: pdfUrlFinal,
-          pdfPath,
-          ultimaAtualizacao: hoje,
-        };
-        await addNorma(newNorma);
+          pdf_url: pdfUrl,
+          pdf_path: pdfPath,
+        });
         sonnerToast.success("Norma adicionada com sucesso!");
       }
 
@@ -187,8 +183,8 @@ export const AdminModal = () => {
       const norma = normas.find((n) => n.id === id);
 
       // Deletar arquivo do storage se existir
-      if (norma?.pdfPath) {
-        await supabase.storage.from("normas-pdfs").remove([norma.pdfPath]);
+      if (norma?.pdf_path) {
+        await supabase.storage.from("normas-pdfs").remove([norma.pdf_path]);
       }
 
       await deleteNorma(id);
@@ -200,10 +196,10 @@ export const AdminModal = () => {
     setEditingNorma(norma);
     setFormData({
       titulo: norma.titulo,
-      categoria: norma.categoria,
+      categoria: norma.categoria as Categoria,
       descricao: norma.descricao || "",
-      pdfUrl: norma.pdfUrl || "",
-      pdfPath: norma.pdfPath || "",
+      pdfUrl: norma.pdf_url || "",
+      pdfPath: norma.pdf_path || "",
     });
     setSelectedFile(null);
   };
