@@ -142,7 +142,18 @@ const Categoria = () => {
                   style={{ animationDelay: `${index * 50}ms` }}
                   className="animate-slide-up"
                 >
-                  <NormaCard norma={norma} onOpenModal={handleOpenModal} />
+                  <NormaCard 
+                    norma={{
+                      id: norma.id,
+                      titulo: norma.titulo,
+                      categoria: norma.categoria as any,
+                      descricao: norma.descricao,
+                      pdfUrl: norma.pdf_url,
+                      pdfPath: norma.pdf_path,
+                      ultimaAtualizacao: norma.updated_at || norma.created_at || new Date().toISOString(),
+                    }} 
+                    onOpenModal={handleOpenModal} 
+                  />
                 </div>
               ))}
             </div>

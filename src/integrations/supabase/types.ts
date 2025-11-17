@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      normas: {
+        Row: {
+          categoria: string
+          created_at: string | null
+          descricao: string
+          id: string
+          pdf_url: string
+          titulo: string
+          updated_at: string | null
+        }
+        Insert: {
+          categoria: string
+          created_at?: string | null
+          descricao: string
+          id: string
+          pdf_url: string
+          titulo: string
+          updated_at?: string | null
+        }
+        Update: {
+          categoria?: string
+          created_at?: string | null
+          descricao?: string
+          id?: string
+          pdf_url?: string
+          titulo?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
