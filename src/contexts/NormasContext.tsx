@@ -54,36 +54,57 @@ console.log("🗝️  Key:", import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
   };
 
   const addNorma = async (novaNorma: Omit<Norma, "id" | "created_at" | "updated_at">) => {
-    const { error } = await supabase.from("normas").insert([
+    console.log("🔵 Tentando adicionar norma:", novaNorma);
+    
+    // Verifica autenticação
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    console.log("👤 Usuário autenticado:", user?.id || "nenhum");
+    
+    if (authError || !user) {
+      console.error("❌ Erro de autenticação:", authError?.message || "Usuário não autenticado");
+      throw new Error("Você precisa estar autenticado para adicionar normas");
+    }
+
+    const { data, error } = await supabase.from("normas").insert([
       {
         ...novaNorma,
         id: crypto.randomUUID(),
       },
-    ]);
+    ]).select();
 
     if (error) {
-      console.error("❌ Erro ao adicionar norma:", error.message);
+      console.error("❌ Erro ao adicionar norma:", error);
+      throw new Error(`Falha ao adicionar norma: ${error.message}`);
     } else {
+      console.log("✅ Norma adicionada com sucesso:", data);
       await refreshNormas();
     }
   };
 
   const updateNorma = async (id: string, data: Partial<Norma>) => {
+    console.log("🔵 Tentando atualizar norma:", id, data);
+    
     const { error } = await supabase.from("normas").update(data).eq("id", id);
 
     if (error) {
-      console.error("❌ Erro ao atualizar norma:", error.message);
+      console.error("❌ Erro ao atualizar norma:", error);
+      throw new Error(`Falha ao atualizar norma: ${error.message}`);
     } else {
+      console.log("✅ Norma atualizada com sucesso");
       await refreshNormas();
     }
   };
 
   const deleteNorma = async (id: string) => {
+    console.log("🔵 Tentando deletar norma:", id);
+    
     const { error } = await supabase.from("normas").delete().eq("id", id);
 
     if (error) {
-      console.error("❌ Erro ao deletar norma:", error.message);
+      console.error("❌ Erro ao deletar norma:", error);
+      throw new Error(`Falha ao deletar norma: ${error.message}`);
     } else {
+      console.log("✅ Norma deletada com sucesso");
       await refreshNormas();
     }
   };
