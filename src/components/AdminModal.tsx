@@ -150,26 +150,40 @@ export const AdminModal = () => {
         : formData.pdfUrl;
 
       if (editingNorma) {
-        await updateNorma(editingNorma.id, {
-          titulo: formData.titulo,
-          categoria: formData.categoria,
-          descricao: formData.descricao,
-          pdf_url: pdfUrl,
-          pdf_path: pdfPath,
-        });
-        sonnerToast.success("Norma atualizada com sucesso!");
+        try {
+          await updateNorma(editingNorma.id, {
+            titulo: formData.titulo,
+            categoria: formData.categoria,
+            descricao: formData.descricao,
+            pdf_url: pdfUrl,
+            pdf_path: pdfPath,
+          });
+          sonnerToast.success("Norma atualizada com sucesso!");
+          resetForm();
+        } catch (error: any) {
+          console.error("Erro ao atualizar:", error);
+          sonnerToast.error(error.message || "Erro ao atualizar norma");
+          setUploading(false);
+          return;
+        }
       } else {
-        await addNorma({
-          titulo: formData.titulo,
-          categoria: formData.categoria,
-          descricao: formData.descricao,
-          pdf_url: pdfUrl,
-          pdf_path: pdfPath,
-        });
-        sonnerToast.success("Norma adicionada com sucesso!");
+        try {
+          await addNorma({
+            titulo: formData.titulo,
+            categoria: formData.categoria,
+            descricao: formData.descricao,
+            pdf_url: pdfUrl,
+            pdf_path: pdfPath,
+          });
+          sonnerToast.success("Norma adicionada com sucesso!");
+          resetForm();
+        } catch (error: any) {
+          console.error("Erro ao adicionar:", error);
+          sonnerToast.error(error.message || "Erro ao adicionar norma");
+          setUploading(false);
+          return;
+        }
       }
-
-      resetForm();
     } catch (error) {
       console.error("Erro ao salvar norma:", error);
       toast({ title: "Erro ao salvar norma", variant: "destructive" });
