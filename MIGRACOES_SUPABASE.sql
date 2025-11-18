@@ -10,12 +10,8 @@
 -- 1. SISTEMA DE ROLES (user_roles)
 -- ============================================
 
--- Create enum for user roles (apenas se não existir)
-DO $$ BEGIN
-  CREATE TYPE public.app_role AS ENUM ('admin', 'viewer');
-EXCEPTION
-  WHEN duplicate_object THEN null;
-END $$;
+-- Create enum for user roles
+CREATE TYPE public.app_role AS ENUM ('admin', 'viewer');
 
 -- Create user_roles table
 CREATE TABLE public.user_roles (
@@ -60,25 +56,21 @@ AS $$
 $$;
 
 -- RLS Policies for user_roles
-DROP POLICY IF EXISTS "Users can view their own role" ON public.user_roles;
 CREATE POLICY "Users can view their own role"
 ON public.user_roles
 FOR SELECT
 USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Only admins can insert roles" ON public.user_roles;
 CREATE POLICY "Only admins can insert roles"
 ON public.user_roles
 FOR INSERT
 WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
-DROP POLICY IF EXISTS "Only admins can update roles" ON public.user_roles;
 CREATE POLICY "Only admins can update roles"
 ON public.user_roles
 FOR UPDATE
 USING (public.has_role(auth.uid(), 'admin'));
 
-DROP POLICY IF EXISTS "Only admins can delete roles" ON public.user_roles;
 CREATE POLICY "Only admins can delete roles"
 ON public.user_roles
 FOR DELETE
@@ -99,7 +91,6 @@ END;
 $$;
 
 -- Trigger to automatically assign viewer role on signup
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW
@@ -120,25 +111,21 @@ VALUES (
 );
 
 -- Política para permitir visualização pública dos PDFs
-DROP POLICY IF EXISTS "Permitir visualização pública de PDFs" ON storage.objects;
 CREATE POLICY "Permitir visualização pública de PDFs"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'normas-pdfs');
 
 -- Política para permitir upload de PDFs (público para o painel admin)
-DROP POLICY IF EXISTS "Permitir upload de PDFs" ON storage.objects;
 CREATE POLICY "Permitir upload de PDFs"
 ON storage.objects FOR INSERT
 WITH CHECK (bucket_id = 'normas-pdfs');
 
 -- Política para permitir exclusão de PDFs
-DROP POLICY IF EXISTS "Permitir exclusão de PDFs" ON storage.objects;
 CREATE POLICY "Permitir exclusão de PDFs"
 ON storage.objects FOR DELETE
 USING (bucket_id = 'normas-pdfs');
 
 -- Política para permitir atualização de PDFs
-DROP POLICY IF EXISTS "Permitir atualização de PDFs" ON storage.objects;
 CREATE POLICY "Permitir atualização de PDFs"
 ON storage.objects FOR UPDATE
 USING (bucket_id = 'normas-pdfs');
@@ -162,28 +149,24 @@ CREATE TABLE IF NOT EXISTS public.normas (
 ALTER TABLE public.normas ENABLE ROW LEVEL SECURITY;
 
 -- Política: Todos podem visualizar normas
-DROP POLICY IF EXISTS "Todos podem visualizar normas" ON public.normas;
 CREATE POLICY "Todos podem visualizar normas"
 ON public.normas
 FOR SELECT
 USING (true);
 
 -- Política: Apenas admins podem inserir normas
-DROP POLICY IF EXISTS "Apenas admins podem inserir normas" ON public.normas;
 CREATE POLICY "Apenas admins podem inserir normas"
 ON public.normas
 FOR INSERT
 WITH CHECK (has_role(auth.uid(), 'admin'));
 
 -- Política: Apenas admins podem atualizar normas
-DROP POLICY IF EXISTS "Apenas admins podem atualizar normas" ON public.normas;
 CREATE POLICY "Apenas admins podem atualizar normas"
 ON public.normas
 FOR UPDATE
 USING (has_role(auth.uid(), 'admin'));
 
 -- Política: Apenas admins podem deletar normas
-DROP POLICY IF EXISTS "Apenas admins podem deletar normas" ON public.normas;
 CREATE POLICY "Apenas admins podem deletar normas"
 ON public.normas
 FOR DELETE
@@ -207,7 +190,6 @@ END;
 $$;
 
 -- Trigger para atualizar updated_at
-DROP TRIGGER IF EXISTS update_normas_updated_at_trigger ON public.normas;
 CREATE TRIGGER update_normas_updated_at_trigger
 BEFORE UPDATE ON public.normas
 FOR EACH ROW
