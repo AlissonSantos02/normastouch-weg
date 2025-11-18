@@ -10,17 +10,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Settings, Plus, Trash2, Upload, FileText, X } from "lucide-react";
-import { Norma } from "@/contexts/NormasContext";
-import { Categoria } from "@/data/normas";
+import { Norma, Categoria } from "@/contexts/NormasContext";
 import { useToast } from "@/hooks/use-toast";
 import { useNormas } from "@/contexts/NormasContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,13 +23,15 @@ export const AdminModal = () => {
   const { normas, addNorma, updateNorma, deleteNorma } = useNormas();
   const [open, setOpen] = useState(false);
   const [editingNorma, setEditingNorma] = useState<Norma | null>(null);
+
   const [formData, setFormData] = useState({
     titulo: "",
     categoria: "eletrica" as Categoria,
     descricao: "",
-    pdfUrl: "",
-    pdfPath: "",
+    pdf_url: "",
+    pdf_path: "",
   });
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -48,8 +43,8 @@ export const AdminModal = () => {
       titulo: "",
       categoria: "eletrica",
       descricao: "",
-      pdfUrl: "",
-      pdfPath: "",
+      pdf_url: "",
+      pdf_path: "",
     });
     setSelectedFile(null);
     setEditingNorma(null);
@@ -70,35 +65,26 @@ export const AdminModal = () => {
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
+    if (e.type === "dragenter" || e.type === "dragover") setDragActive(true);
+    if (e.type === "dragleave") setDragActive(false);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileSelect(e.dataTransfer.files[0]);
-    }
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) handleFileSelect(e.dataTransfer.files[0]);
   };
 
   const uploadPdfToStorage = async (file: File): Promise<string | null> => {
     try {
       const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const filePath = fileName;
 
       const { error: uploadError } = await supabase.storage
         .from("normas-pdfs")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
+        .upload(filePath, file, { cacheControl: "3600", upsert: false });
 
       if (uploadError) {
         console.error("Erro no upload:", uploadError);
@@ -121,10 +107,9 @@ export const AdminModal = () => {
     }
 
     setUploading(true);
-    let pdfPath = formData.pdfPath;
+    let pdf_path = formData.pdf_path;
 
     try {
-      // Upload do arquivo, se houver
       if (selectedFile) {
         const uploadToastId = sonnerToast.loading("Fazendo upload do PDF...");
         const uploadedPath = await uploadPdfToStorage(selectedFile);
@@ -137,53 +122,42 @@ export const AdminModal = () => {
         }
 
         sonnerToast.dismiss(uploadToastId);
-        pdfPath = uploadedPath;
+        pdf_path = uploadedPath;
 
-        // Deleta o arquivo antigo se estiver editando
         if (editingNorma?.pdf_path) {
           await supabase.storage.from("normas-pdfs").remove([editingNorma.pdf_path]);
         }
       }
 
-      const pdfUrl = pdfPath
-        ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/normas-pdfs/${pdfPath}`
-        : formData.pdfUrl;
+      const hoje = new Date().toISOString().split("T")[0];
+      const pdf_url_Final = pdf_path
+        ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/normas-pdfs/${pdf_path}`
+        : formData.pdf_url;
 
       if (editingNorma) {
-        try {
-          await updateNorma(editingNorma.id, {
-            titulo: formData.titulo,
-            categoria: formData.categoria,
-            descricao: formData.descricao,
-            pdf_url: pdfUrl,
-            pdf_path: pdfPath,
-          });
-          sonnerToast.success("Norma atualizada com sucesso!");
-          resetForm();
-        } catch (error: any) {
-          console.error("Erro ao atualizar:", error);
-          sonnerToast.error(error.message || "Erro ao atualizar norma");
-          setUploading(false);
-          return;
-        }
+        await updateNorma(editingNorma.id, {
+          titulo: formData.titulo,
+          categoria: formData.categoria,
+          descricao: formData.descricao,
+          pdf_url: pdf_url_Final,
+          pdf_path,
+          ultima_atualizacao: hoje,
+        });
+        sonnerToast.success("Norma atualizada com sucesso!");
       } else {
-        try {
-          await addNorma({
-            titulo: formData.titulo,
-            categoria: formData.categoria,
-            descricao: formData.descricao,
-            pdf_url: pdfUrl,
-            pdf_path: pdfPath,
-          });
-          sonnerToast.success("Norma adicionada com sucesso!");
-          resetForm();
-        } catch (error: any) {
-          console.error("Erro ao adicionar:", error);
-          sonnerToast.error(error.message || "Erro ao adicionar norma");
-          setUploading(false);
-          return;
-        }
+        const newNorma: Omit<Norma, "id" | "created_at" | "updated_at"> = {
+          titulo: formData.titulo,
+          categoria: formData.categoria,
+          descricao: formData.descricao,
+          pdf_url: pdf_url_Final,
+          pdf_path,
+          ultima_atualizacao: hoje,
+        };
+        await addNorma(newNorma);
+        sonnerToast.success("Norma adicionada com sucesso!");
       }
+
+      resetForm();
     } catch (error) {
       console.error("Erro ao salvar norma:", error);
       toast({ title: "Erro ao salvar norma", variant: "destructive" });
@@ -196,10 +170,8 @@ export const AdminModal = () => {
     if (confirm("Tem certeza que deseja excluir esta norma?")) {
       const norma = normas.find((n) => n.id === id);
 
-      // Deletar arquivo do storage se existir
-      if (norma?.pdf_path) {
+      if (norma?.pdf_path)
         await supabase.storage.from("normas-pdfs").remove([norma.pdf_path]);
-      }
 
       await deleteNorma(id);
       sonnerToast.success("Norma excluída com sucesso!");
@@ -210,10 +182,10 @@ export const AdminModal = () => {
     setEditingNorma(norma);
     setFormData({
       titulo: norma.titulo,
-      categoria: norma.categoria as Categoria,
+      categoria: norma.categoria,
       descricao: norma.descricao || "",
-      pdfUrl: norma.pdf_url || "",
-      pdfPath: norma.pdf_path || "",
+      pdf_url: norma.pdf_url || "",
+      pdf_path: norma.pdf_path || "",
     });
     setSelectedFile(null);
   };
@@ -229,6 +201,7 @@ export const AdminModal = () => {
           <Settings className="h-6 w-6" />
         </Button>
       </DialogTrigger>
+
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">Gerenciar Normas</DialogTitle>
@@ -238,9 +211,7 @@ export const AdminModal = () => {
         <div className="grid md:grid-cols-2 gap-6">
           {/* Formulário */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg">
-              {editingNorma ? "Editar Norma" : "Nova Norma"}
-            </h3>
+            <h3 className="font-semibold text-lg">{editingNorma ? "Editar Norma" : "Nova Norma"}</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="titulo">Título *</Label>
@@ -256,9 +227,7 @@ export const AdminModal = () => {
                 <Label htmlFor="categoria">Categoria *</Label>
                 <Select
                   value={formData.categoria}
-                  onValueChange={(value: Categoria) =>
-                    setFormData({ ...formData, categoria: value })
-                  }
+                  onValueChange={(value: Categoria) => setFormData({ ...formData, categoria: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -284,16 +253,16 @@ export const AdminModal = () => {
               </div>
 
               <div>
-                <Label htmlFor="pdfUrl">URL do PDF (opcional)</Label>
+                <Label htmlFor="pdf_url">URL do PDF (opcional)</Label>
                 <Input
-                  id="pdfUrl"
-                  value={formData.pdfUrl}
-                  onChange={(e) => setFormData({ ...formData, pdfUrl: e.target.value })}
+                  id="pdf_url"
+                  value={formData.pdf_url}
+                  onChange={(e) => setFormData({ ...formData, pdf_url: e.target.value })}
                   placeholder="https://exemplo.com/norma.pdf"
                 />
               </div>
 
-              {/* Upload de Arquivo */}
+              {/* Upload */}
               <div>
                 <Label>Upload de PDF</Label>
                 <div
@@ -323,7 +292,6 @@ export const AdminModal = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => setSelectedFile(null)}
-                        className="h-8 w-8"
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -335,6 +303,7 @@ export const AdminModal = () => {
                         Arraste e solte um PDF ou clique para selecionar
                       </p>
                       <p className="text-xs text-muted-foreground mb-3">Máximo: 20MB</p>
+
                       <input
                         ref={fileInputRef}
                         type="file"
@@ -342,6 +311,7 @@ export const AdminModal = () => {
                         onChange={(e) => e.target.files && handleFileSelect(e.target.files[0])}
                         className="hidden"
                       />
+
                       <Button
                         type="button"
                         variant="outline"
@@ -360,6 +330,7 @@ export const AdminModal = () => {
                   <Plus className="h-4 w-4 mr-2" />
                   {uploading ? "Salvando..." : editingNorma ? "Atualizar" : "Adicionar"}
                 </Button>
+
                 {editingNorma && (
                   <Button type="button" variant="outline" onClick={resetForm}>
                     Cancelar
@@ -369,11 +340,9 @@ export const AdminModal = () => {
             </form>
           </div>
 
-          {/* Lista de Normas */}
+          {/* Lista */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg">
-              Normas Cadastradas ({normas.length})
-            </h3>
+            <h3 className="font-semibold text-lg">Normas Cadastradas ({normas.length})</h3>
             <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
               {normas.map((norma) => (
                 <div
@@ -387,6 +356,7 @@ export const AdminModal = () => {
                         {norma.categoria}
                       </p>
                     </div>
+
                     <div className="flex gap-1">
                       <Button
                         size="sm"
@@ -396,6 +366,7 @@ export const AdminModal = () => {
                       >
                         Editar
                       </Button>
+
                       <Button
                         size="sm"
                         variant="ghost"
@@ -410,6 +381,7 @@ export const AdminModal = () => {
               ))}
             </div>
           </div>
+
         </div>
       </DialogContent>
     </Dialog>
