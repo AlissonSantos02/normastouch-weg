@@ -1,0 +1,26 @@
+include:
+  - project: 'dti/agd/templates/ci-templates-javascript'
+    ref: master
+    file: 'express.yml'
+
+variables:
+  DOCKER_IMAGE_NAME: "normastouch-weg"
+  AUTOMATIC_DEPLOYMENT_ON_QA: "true"
+  K8S_APP_NAME: "normastouch-weg"
+  K8S_DISABLE_HEALTHCHECK: "true"
+  K8S_DISABLE_METRICS: "true"
+  K8S_MEM_REQ: 500Mi
+  K8S_MEM_LIM: 1000Mi
+  K8S_REPLICAS: "2"
+
+deploy:qa:
+  environment: qas
+  variables:
+    K8S_NAMESPACE: "dev-developersportal-agd"
+    GITLAB_TOKEN: ${QAS_GITLAB_TOKEN}
+
+deploy:prd:
+  environment: prd
+  variables:
+    K8S_NAMESPACE: "prd-developersportal-agd"
+    GITLAB_TOKEN: ${PRD_GITLAB_TOKEN}
