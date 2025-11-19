@@ -17,6 +17,9 @@ deploy:qa:
   environment: qas
   variables:
     K8S_NAMESPACE: "dev-developersportal-agd"
+    REACT_APP_SUPABASE_PROJECT_ID: "ytlrgiklfnygbzrwhpdz"
+    REACT_APP_SUPABASE_PUBLISHABLE_KEY: "seu-token"
+    REACT_APP_SUPABASE_URL: "https://ytlrgiklfnygbzrwhpdz.supabase.co"
     GITLAB_TOKEN: ${QAS_GITLAB_TOKEN}
 
 deploy:prd:
