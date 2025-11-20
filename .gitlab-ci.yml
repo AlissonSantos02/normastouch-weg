@@ -17,9 +17,9 @@ deploy:qa:
   environment: qas
   variables:
     K8S_NAMESPACE: "qas-normastouch"
-    VITE_SUPABASE_PROJECT_ID: "ytlrgiklfnygbzrwhpdz"
-    VITE_SUPABASE_PUBLISHABLE_KEY: "seu_token_aqui"
-    VITE_SUPABASE_URL: "https://ytlrgiklfnygbzrwhpdz.supabase.co"
+    REACT_APP_SUPABASE_PROJECT_ID: "ytlrgiklfnygbzrwhpdz"
+    REACT_APP_SUPABASE_PUBLISHABLE_KEY: "seu_token_aqui"
+    REACT_APP_SUPABASE_URL: "https://ytlrgiklfnygbzrwhpdz.supabase.co"
     GITLAB_TOKEN: ${QAS_GITLAB_TOKEN}
 
 deploy:prd:
