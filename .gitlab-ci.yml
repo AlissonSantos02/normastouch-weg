@@ -9,21 +9,21 @@ variables:
   K8S_APP_NAME: "normastouch-weg"
   K8S_DISABLE_HEALTHCHECK: "true"
   K8S_DISABLE_METRICS: "true"
-  K8S_MEM_REQ: 500Mi
-  K8S_MEM_LIM: 1000Mi
+  K8S_MEM_REQ: "500Mi"
+  K8S_MEM_LIM: "1000Mi"
   K8S_REPLICAS: "2"
 
 deploy:qa:
   environment: qas
   variables:
-    K8S_NAMESPACE: "dev-developersportal-agd"
-    REACT_APP_SUPABASE_PROJECT_ID: "ytlrgiklfnygbzrwhpdz"
-    REACT_APP_SUPABASE_PUBLISHABLE_KEY: "seu-token"
-    REACT_APP_SUPABASE_URL: "https://ytlrgiklfnygbzrwhpdz.supabase.co"
+    K8S_NAMESPACE: "qas-normastouch"
+    VITE_SUPABASE_PROJECT_ID: "ytlrgiklfnygbzrwhpdz"
+    VITE_SUPABASE_PUBLISHABLE_KEY: "seu_token_aqui"
+    VITE_SUPABASE_URL: "https://ytlrgiklfnygbzrwhpdz.supabase.co"
     GITLAB_TOKEN: ${QAS_GITLAB_TOKEN}
 
 deploy:prd:
   environment: prd
   variables:
-    K8S_NAMESPACE: "prd-developersportal-agd"
+    K8S_NAMESPACE: "prd-normastouch"
     GITLAB_TOKEN: ${PRD_GITLAB_TOKEN}
