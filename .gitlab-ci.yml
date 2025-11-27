@@ -1,7 +1,7 @@
 include:
   - project: 'dti/agd/templates/ci-templates-javascript'
     ref: master
-    file: 'express.yml'
+    file: 'react.yml'
 
 variables:
   DOCKER_IMAGE_NAME: "normastouch-weg"
