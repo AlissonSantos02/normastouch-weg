@@ -12,6 +12,7 @@ variables:
   K8S_MEM_REQ: "500Mi"
   K8S_MEM_LIM: "1000Mi"
   K8S_REPLICAS: "2"
+  K8S_APP_PORT: "15080"
 
 deploy:qa:
   environment: qas
