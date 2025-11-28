@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { generateUUID } from "@/utils/uuid";
 
 
 // no topo do NormasContext.tsx
@@ -65,7 +66,7 @@ export function NormasProvider({ children }: { children: ReactNode }) {
       .insert([
         {
           ...novaNorma,
-          id: crypto.randomUUID(),
+          id: generateUUID(),
         },
       ])
       .select();
