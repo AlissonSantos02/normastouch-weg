@@ -55,7 +55,7 @@ const Index = () => {
                   Painel Digital de Normas
                 </h1>
                 <p className="text-white/80 text-base font-medium mt-2">
-                  Sistema de consulta rápida de documentos técnicos
+                  Sistema de consulta rápida de documentos técnicos.
                 </p>
               </div>
               <Button 
