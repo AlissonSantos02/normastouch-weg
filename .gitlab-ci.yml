@@ -13,11 +13,17 @@ variables:
   K8S_MEM_LIM: "1000Mi"
   K8S_REPLICAS: "2"
   K8S_APP_PORT: "15080"
+  K8S_INGRESS_CLASS_NAME: "f5"
+  K8S_INGRESS_SERVICE_PATH: "/"
+  K8S_INGRESS_ALLOW_HTTP: "false"
 
 deploy:qa:
   environment: qas
   variables:
     K8S_NAMESPACE: "qas-normastouch"
+    K8S_INGRESS_IP: "controller-default"
+    K8S_INGRESS_DNS_URL: "normastouch-qas.weg.net"
+
     REACT_APP_SUPABASE_PROJECT_ID: "ytlrgiklfnygbzrwhpdz"
     REACT_APP_SUPABASE_PUBLISHABLE_KEY: "seu_token_aqui"
     REACT_APP_SUPABASE_URL: "https://ytlrgiklfnygbzrwhpdz.supabase.co"
