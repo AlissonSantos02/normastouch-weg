@@ -8,6 +8,7 @@ export interface Norma {
   descricao?: string;
   pdf_url?: string;
   pdf_path?: string;
+  local?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -65,10 +66,23 @@ console.log("🗝️  Key:", import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
       throw new Error("Você precisa estar autenticado para adicionar normas");
     }
 
+    // Busca o local do usuário (necessário para passar a RLS por local)
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("local")
+      .eq("user_id", user.id)
+      .single();
+
+    if (profileError || !profile) {
+      console.error("❌ Erro ao obter local do usuário:", profileError?.message);
+      throw new Error("Não foi possível identificar o local do usuário");
+    }
+
     const { data, error } = await supabase.from("normas").insert([
       {
         ...novaNorma,
         id: crypto.randomUUID(),
+        local: novaNorma.local || profile.local,
       },
     ]).select();
 

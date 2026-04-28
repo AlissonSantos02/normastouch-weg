@@ -14,12 +14,31 @@ export type Database = {
   }
   public: {
     Tables: {
+      locais: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
       normas: {
         Row: {
           categoria: string
           created_at: string | null
           descricao: string
           id: string
+          local: string
           pdf_url: string
           titulo: string
           updated_at: string | null
@@ -29,6 +48,7 @@ export type Database = {
           created_at?: string | null
           descricao: string
           id: string
+          local?: string
           pdf_url: string
           titulo: string
           updated_at?: string | null
@@ -38,9 +58,34 @@ export type Database = {
           created_at?: string | null
           descricao?: string
           id?: string
+          local?: string
           pdf_url?: string
           titulo?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          local: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          local?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          local?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -70,6 +115,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_local: { Args: { _user_id: string }; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
