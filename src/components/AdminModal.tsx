@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Settings, Plus, Trash2, Upload, FileText, X } from "lucide-react";
-import { Norma, Categoria } from "@/contexts/NormasContext";
+import { Norma } from "@/contexts/NormasContext";
 import { useToast } from "@/hooks/use-toast";
 import { useNormas } from "@/contexts/NormasContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,7 +26,7 @@ export const AdminModal = () => {
 
   const [formData, setFormData] = useState({
     titulo: "",
-    categoria: "eletrica" as Categoria,
+    categoria: "eletrica",
     descricao: "",
     pdf_url: "",
     pdf_path: "",
@@ -141,7 +141,6 @@ export const AdminModal = () => {
           descricao: formData.descricao,
           pdf_url: pdf_url_Final,
           pdf_path,
-          ultima_atualizacao: hoje,
         });
         sonnerToast.success("Norma atualizada com sucesso!");
       } else {
@@ -151,7 +150,6 @@ export const AdminModal = () => {
           descricao: formData.descricao,
           pdf_url: pdf_url_Final,
           pdf_path,
-          ultima_atualizacao: hoje,
         };
         await addNorma(newNorma);
         sonnerToast.success("Norma adicionada com sucesso!");
@@ -227,7 +225,7 @@ export const AdminModal = () => {
                 <Label htmlFor="categoria">Categoria *</Label>
                 <Select
                   value={formData.categoria}
-                  onValueChange={(value: Categoria) => setFormData({ ...formData, categoria: value })}
+                  onValueChange={(value) => setFormData({ ...formData, categoria: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />

@@ -5,12 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [local, setLocal] = useState<string>('');
+  const [locais, setLocais] = useState<{ id: string; nome: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -22,6 +25,21 @@ export default function Auth() {
       }
     });
   }, [navigate]);
+
+  useEffect(() => {
+    // Carrega locais disponíveis (acessível a usuários autenticados; aqui ainda anônimo,
+    // então usamos um fallback). Tentamos buscar; se falhar, mostramos apenas WEG ITAJAI.
+    (async () => {
+      const { data } = await supabase.from('locais').select('id, nome').order('nome');
+      if (data && data.length > 0) {
+        setLocais(data);
+        setLocal(data[0].nome);
+      } else {
+        setLocais([{ id: 'default', nome: 'WEG ITAJAI' }]);
+        setLocal('WEG ITAJAI');
+      }
+    })();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +61,9 @@ export default function Auth() {
           password,
           options: {
             emailRedirectTo: redirectUrl,
+            data: {
+              local: local || 'WEG ITAJAI',
+            },
           },
         });
         if (error) throw error;
@@ -99,6 +120,26 @@ export default function Auth() {
                 minLength={6}
               />
             </div>
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="local">Local</Label>
+                <Select value={local} onValueChange={setLocal}>
+                  <SelectTrigger id="local">
+                    <SelectValue placeholder="Selecione o local" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locais.map((l) => (
+                      <SelectItem key={l.id} value={l.nome}>
+                        {l.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Novos locais só podem ser adicionados por administradores no banco de dados.
+                </p>
+              </div>
+            )}
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Processando...' : isLogin ? 'Entrar' : 'Cadastrar'}
             </Button>
