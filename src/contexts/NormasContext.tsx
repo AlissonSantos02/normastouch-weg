@@ -30,6 +30,12 @@ export function NormasProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     refreshNormas();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
+        refreshNormas();
+      }
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   const refreshNormas = async () => {
