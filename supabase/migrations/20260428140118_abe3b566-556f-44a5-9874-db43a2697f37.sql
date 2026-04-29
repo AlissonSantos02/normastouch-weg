@@ -25,8 +25,16 @@ CREATE POLICY "Apenas admins podem deletar locais"
 ON public.locais FOR DELETE
 USING (public.has_role(auth.uid(), 'admin'));
 
--- Local padrão
-INSERT INTO public.locais (nome) VALUES ('WEG ITAJAI');
+-- Locais padrão
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM public.locais WHERE nome = 'WEG ITAJAI') THEN
+    INSERT INTO public.locais (nome) VALUES ('WEG ITAJAI');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM public.locais WHERE nome = 'WEG JGS') THEN
+    INSERT INTO public.locais (nome) VALUES ('WEG JGS');
+  END IF;
+END $$;
 
 -- 2. Tabela profiles (vincula usuário ao local)
 CREATE TABLE public.profiles (

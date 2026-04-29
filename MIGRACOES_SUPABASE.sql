@@ -11,7 +11,7 @@
 -- ============================================
 
 -- Create enum for user roles
-CREATE TYPE public.app_role AS ENUM ('admin', 'viewer');
+CREATE TYPE IF NOT EXISTS public.app_role AS ENUM ('admin', 'viewer');
 
 -- Create user_roles table
 CREATE TABLE public.user_roles (
@@ -56,25 +56,45 @@ AS $$
 $$;
 
 -- RLS Policies for user_roles
-CREATE POLICY "Users can view their own role"
-ON public.user_roles
-FOR SELECT
-USING (auth.uid() = user_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'user_roles' AND policyname = 'Users can view their own role') THEN
+    CREATE POLICY "Users can view their own role"
+    ON public.user_roles
+    FOR SELECT
+    USING (auth.uid() = user_id);
+  END IF;
+END $$;
 
-CREATE POLICY "Only admins can insert roles"
-ON public.user_roles
-FOR INSERT
-WITH CHECK (public.has_role(auth.uid(), 'admin'));
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'user_roles' AND policyname = 'Only admins can insert roles') THEN
+    CREATE POLICY "Only admins can insert roles"
+    ON public.user_roles
+    FOR INSERT
+    WITH CHECK (public.has_role(auth.uid(), 'admin'));
+  END IF;
+END $$;
 
-CREATE POLICY "Only admins can update roles"
-ON public.user_roles
-FOR UPDATE
-USING (public.has_role(auth.uid(), 'admin'));
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'user_roles' AND policyname = 'Only admins can update roles') THEN
+    CREATE POLICY "Only admins can update roles"
+    ON public.user_roles
+    FOR UPDATE
+    USING (public.has_role(auth.uid(), 'admin'));
+  END IF;
+END $$;
 
-CREATE POLICY "Only admins can delete roles"
-ON public.user_roles
-FOR DELETE
-USING (public.has_role(auth.uid(), 'admin'));
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'user_roles' AND policyname = 'Only admins can delete roles') THEN
+    CREATE POLICY "Only admins can delete roles"
+    ON public.user_roles
+    FOR DELETE
+    USING (public.has_role(auth.uid(), 'admin'));
+  END IF;
+END $$;
 
 -- Function to handle new user creation with default viewer role
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -91,6 +111,7 @@ END;
 $$;
 
 -- Trigger to automatically assign viewer role on signup
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW
@@ -101,34 +122,59 @@ CREATE TRIGGER on_auth_user_created
 -- ============================================
 
 -- Criar bucket de storage para PDFs das normas
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES (
-  'normas-pdfs',
-  'normas-pdfs',
-  true,
-  20971520, -- 20MB
-  ARRAY['application/pdf']
-);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM storage.buckets WHERE id = 'normas-pdfs') THEN
+    INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+    VALUES (
+      'normas-pdfs',
+      'normas-pdfs',
+      true,
+      20971520, -- 20MB
+      ARRAY['application/pdf']
+    );
+  END IF;
+END $$;
 
 -- Política para permitir visualização pública dos PDFs
-CREATE POLICY "Permitir visualização pública de PDFs"
-ON storage.objects FOR SELECT
-USING (bucket_id = 'normas-pdfs');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Permitir visualização pública de PDFs') THEN
+    CREATE POLICY "Permitir visualização pública de PDFs"
+    ON storage.objects FOR SELECT
+    USING (bucket_id = 'normas-pdfs');
+  END IF;
+END $$;
 
 -- Política para permitir upload de PDFs (público para o painel admin)
-CREATE POLICY "Permitir upload de PDFs"
-ON storage.objects FOR INSERT
-WITH CHECK (bucket_id = 'normas-pdfs');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Permitir upload de PDFs') THEN
+    CREATE POLICY "Permitir upload de PDFs"
+    ON storage.objects FOR INSERT
+    WITH CHECK (bucket_id = 'normas-pdfs');
+  END IF;
+END $$;
 
 -- Política para permitir exclusão de PDFs
-CREATE POLICY "Permitir exclusão de PDFs"
-ON storage.objects FOR DELETE
-USING (bucket_id = 'normas-pdfs');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Permitir exclusão de PDFs') THEN
+    CREATE POLICY "Permitir exclusão de PDFs"
+    ON storage.objects FOR DELETE
+    USING (bucket_id = 'normas-pdfs');
+  END IF;
+END $$;
 
 -- Política para permitir atualização de PDFs
-CREATE POLICY "Permitir atualização de PDFs"
-ON storage.objects FOR UPDATE
-USING (bucket_id = 'normas-pdfs');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'objects' AND policyname = 'Permitir atualização de PDFs') THEN
+    CREATE POLICY "Permitir atualização de PDFs"
+    ON storage.objects FOR UPDATE
+    USING (bucket_id = 'normas-pdfs');
+  END IF;
+END $$;
 
 -- ============================================
 -- 3. TABELA NORMAS
@@ -149,28 +195,48 @@ CREATE TABLE IF NOT EXISTS public.normas (
 ALTER TABLE public.normas ENABLE ROW LEVEL SECURITY;
 
 -- Política: Todos podem visualizar normas
-CREATE POLICY "Todos podem visualizar normas"
-ON public.normas
-FOR SELECT
-USING (true);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'normas' AND policyname = 'Todos podem visualizar normas') THEN
+    CREATE POLICY "Todos podem visualizar normas"
+    ON public.normas
+    FOR SELECT
+    USING (true);
+  END IF;
+END $$;
 
 -- Política: Apenas admins podem inserir normas
-CREATE POLICY "Apenas admins podem inserir normas"
-ON public.normas
-FOR INSERT
-WITH CHECK (has_role(auth.uid(), 'admin'));
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'normas' AND policyname = 'Apenas admins podem inserir normas') THEN
+    CREATE POLICY "Apenas admins podem inserir normas"
+    ON public.normas
+    FOR INSERT
+    WITH CHECK (has_role(auth.uid(), 'admin'));
+  END IF;
+END $$;
 
 -- Política: Apenas admins podem atualizar normas
-CREATE POLICY "Apenas admins podem atualizar normas"
-ON public.normas
-FOR UPDATE
-USING (has_role(auth.uid(), 'admin'));
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'normas' AND policyname = 'Apenas admins podem atualizar normas') THEN
+    CREATE POLICY "Apenas admins podem atualizar normas"
+    ON public.normas
+    FOR UPDATE
+    USING (has_role(auth.uid(), 'admin'));
+  END IF;
+END $$;
 
 -- Política: Apenas admins podem deletar normas
-CREATE POLICY "Apenas admins podem deletar normas"
-ON public.normas
-FOR DELETE
-USING (has_role(auth.uid(), 'admin'));
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'normas' AND policyname = 'Apenas admins podem deletar normas') THEN
+    CREATE POLICY "Apenas admins podem deletar normas"
+    ON public.normas
+    FOR DELETE
+    USING (has_role(auth.uid(), 'admin'));
+  END IF;
+END $$;
 
 -- ============================================
 -- 4. TRIGGERS E FUNÇÕES
@@ -190,6 +256,7 @@ END;
 $$;
 
 -- Trigger para atualizar updated_at
+DROP TRIGGER IF EXISTS update_normas_updated_at_trigger ON public.normas;
 CREATE TRIGGER update_normas_updated_at_trigger
 BEFORE UPDATE ON public.normas
 FOR EACH ROW
