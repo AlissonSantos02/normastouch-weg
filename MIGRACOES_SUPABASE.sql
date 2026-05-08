@@ -41,7 +41,7 @@ AS $$
   )
 $$;
 
--- Create function to get user role
+-- Create function to get user role 
 CREATE OR REPLACE FUNCTION public.get_user_role(_user_id UUID)
 RETURNS app_role
 LANGUAGE sql
