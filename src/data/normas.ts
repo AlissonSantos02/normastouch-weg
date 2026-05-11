@@ -1,4 +1,4 @@
-export type Categoria = "eletrica" | "mecanica" | "processos" | "apts";
+export type Categoria = string;
 
 export interface Norma {
   id: string;

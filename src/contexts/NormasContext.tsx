@@ -3,8 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { generateUUID } from "@/utils/uuid";
 
 
-// no topo do NormasContext.tsx
-export type Categoria = "eletrica" | "mecanica" | "processos" | "apts";
+// Categoria agora é dinâmica (string livre vinda da tabela categorias)
+export type Categoria = string;
 
 export interface Norma {
   id: string;
