@@ -81,7 +81,7 @@ export default function Auth() {
           </form>
           <div className="mt-4 text-center">
             <p className="text-xs text-muted-foreground">
-              Novos usuários são cadastrados pelo administrador no banco de dados.
+              Novos usuários são cadastrados pelo administrador no banco de dados alissona@weg.net .
             </p>
           </div>
         </CardContent>
