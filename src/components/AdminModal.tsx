@@ -12,21 +12,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Settings, Plus, Trash2, Upload, FileText, X } from "lucide-react";
+import { Settings, Plus, Trash2, Upload, FileText, X, FolderPlus, Zap, Wrench, RefreshCw, ClipboardList, Cog, HardHat, ShieldAlert, Package, Factory, Hammer, Truck, Gauge, Lightbulb, Cable, Box, type LucideIcon } from "lucide-react";
 import { Norma } from "@/contexts/NormasContext";
 import { useToast } from "@/hooks/use-toast";
 import { useNormas } from "@/contexts/NormasContext";
+import { useCategorias } from "@/contexts/CategoriasContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast as sonnerToast } from "sonner";
 
 export const AdminModal = () => {
   const { normas, addNorma, updateNorma, deleteNorma } = useNormas();
+  const { categorias, addCategoria, deleteCategoria } = useCategorias();
   const [open, setOpen] = useState(false);
   const [editingNorma, setEditingNorma] = useState<Norma | null>(null);
 
   const [formData, setFormData] = useState({
     titulo: "",
-    categoria: "eletrica",
+    categoria: "",
     descricao: "",
     pdf_url: "",
     pdf_path: "",
@@ -38,10 +40,75 @@ export const AdminModal = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  // Categoria form
+  const [catOpen, setCatOpen] = useState(false);
+  const [catForm, setCatForm] = useState({ id: "", nome: "", icone: "FileText", color_class: "electric" });
+  const [savingCat, setSavingCat] = useState(false);
+
+  const ICON_OPTIONS: { name: string; Icon: LucideIcon }[] = [
+    { name: "Zap", Icon: Zap },
+    { name: "Wrench", Icon: Wrench },
+    { name: "Settings", Icon: Cog },
+    { name: "RefreshCw", Icon: RefreshCw },
+    { name: "ClipboardList", Icon: ClipboardList },
+    { name: "HardHat", Icon: HardHat },
+    { name: "ShieldAlert", Icon: ShieldAlert },
+    { name: "Package", Icon: Package },
+    { name: "Factory", Icon: Factory },
+    { name: "Hammer", Icon: Hammer },
+    { name: "Truck", Icon: Truck },
+    { name: "Gauge", Icon: Gauge },
+    { name: "Lightbulb", Icon: Lightbulb },
+    { name: "Cable", Icon: Cable },
+    { name: "Box", Icon: Box },
+    { name: "FileText", Icon: FileText },
+  ];
+
+  const COLOR_OPTIONS = [
+    { value: "electric", label: "Azul (Elétrica)" },
+    { value: "mechanical", label: "Laranja (Mecânica)" },
+    { value: "process", label: "Verde (Processos)" },
+    { value: "apt", label: "Rosa (APT's)" },
+  ];
+
+  const slugify = (s: string) =>
+    s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+  const handleSaveCategoria = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!catForm.nome.trim()) {
+      toast({ title: "Nome é obrigatório", variant: "destructive" });
+      return;
+    }
+    setSavingCat(true);
+    try {
+      const id = (catForm.id.trim() || slugify(catForm.nome)) || `cat-${Date.now()}`;
+      await addCategoria({ id, nome: catForm.nome, icone: catForm.icone, color_class: catForm.color_class });
+      sonnerToast.success("Categoria criada com sucesso!");
+      setCatForm({ id: "", nome: "", icone: "FileText", color_class: "electric" });
+      setCatOpen(false);
+    } catch (err: any) {
+      toast({ title: "Erro ao criar categoria", description: err.message, variant: "destructive" });
+    } finally {
+      setSavingCat(false);
+    }
+  };
+
+  const handleDeleteCategoria = async (id: string) => {
+    if (!confirm("Excluir esta categoria? Normas vinculadas continuarão existindo, mas sem categoria visível.")) return;
+    try {
+      await deleteCategoria(id);
+      sonnerToast.success("Categoria excluída");
+    } catch (err: any) {
+      toast({ title: "Erro ao excluir", description: err.message, variant: "destructive" });
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       titulo: "",
-      categoria: "eletrica",
+      categoria: categorias[0]?.id || "",
       descricao: "",
       pdf_url: "",
       pdf_path: "",
@@ -103,6 +170,10 @@ export const AdminModal = () => {
 
     if (!formData.titulo.trim()) {
       toast({ title: "Título é obrigatório", variant: "destructive" });
+      return;
+    }
+    if (!formData.categoria) {
+      toast({ title: "Selecione uma categoria", variant: "destructive" });
       return;
     }
 
@@ -202,9 +273,99 @@ export const AdminModal = () => {
 
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Gerenciar Normas</DialogTitle>
-          <DialogDescription>Adicione, edite ou exclua normas do sistema</DialogDescription>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <DialogTitle className="text-2xl">Gerenciar Normas</DialogTitle>
+              <DialogDescription>Adicione, edite ou exclua normas e categorias</DialogDescription>
+            </div>
+            <Button type="button" variant="outline" size="sm" onClick={() => setCatOpen((v) => !v)}>
+              <FolderPlus className="h-4 w-4 mr-2" />
+              {catOpen ? "Fechar" : "Criar Categoria"}
+            </Button>
+          </div>
         </DialogHeader>
+
+        {catOpen && (
+          <div className="border rounded-lg p-4 bg-muted/30 space-y-4">
+            <h3 className="font-semibold">Nova Categoria</h3>
+            <form onSubmit={handleSaveCategoria} className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="cat-nome">Nome *</Label>
+                  <Input
+                    id="cat-nome"
+                    value={catForm.nome}
+                    onChange={(e) => setCatForm({ ...catForm, nome: e.target.value })}
+                    placeholder="Ex: HIDRÁULICA"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="cat-id">ID (opcional)</Label>
+                  <Input
+                    id="cat-id"
+                    value={catForm.id}
+                    onChange={(e) => setCatForm({ ...catForm, id: e.target.value })}
+                    placeholder="Auto a partir do nome"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>Cor</Label>
+                <Select value={catForm.color_class} onValueChange={(v) => setCatForm({ ...catForm, color_class: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {COLOR_OPTIONS.map((c) => (
+                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Ícone</Label>
+                <div className="grid grid-cols-8 gap-2 mt-2 p-3 border rounded-lg bg-background">
+                  {ICON_OPTIONS.map(({ name, Icon }) => (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => setCatForm({ ...catForm, icone: name })}
+                      className={`flex items-center justify-center h-10 w-10 rounded-md border transition-colors ${
+                        catForm.icone === name
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border hover:bg-muted"
+                      }`}
+                      title={name}
+                    >
+                      <Icon className="h-5 w-5" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <Button type="submit" disabled={savingCat}>
+                <Plus className="h-4 w-4 mr-2" />
+                {savingCat ? "Salvando..." : "Criar Categoria"}
+              </Button>
+            </form>
+
+            {categorias.length > 0 && (
+              <div className="pt-4 border-t">
+                <h4 className="text-sm font-medium mb-2">Categorias existentes</h4>
+                <div className="space-y-1 max-h-40 overflow-y-auto">
+                  {categorias.map((c) => (
+                    <div key={c.id} className="flex items-center justify-between text-sm p-2 bg-background rounded">
+                      <span>{c.nome} <span className="text-muted-foreground">({c.id})</span></span>
+                      <Button size="sm" variant="ghost" onClick={() => handleDeleteCategoria(c.id)} className="h-7 px-2 text-destructive">
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Formulário */}
@@ -228,13 +389,12 @@ export const AdminModal = () => {
                   onValueChange={(value) => setFormData({ ...formData, categoria: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Selecione..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="eletrica">Montagem Elétrica</SelectItem>
-                    <SelectItem value="mecanica">Montagem Mecânica</SelectItem>
-                    <SelectItem value="processos">Processos</SelectItem>
-                    <SelectItem value="apts">APT's</SelectItem>
+                    {categorias.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
