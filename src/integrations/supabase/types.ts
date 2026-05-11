@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      categorias: {
+        Row: {
+          color_class: string
+          created_at: string
+          icone: string
+          id: string
+          local: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          color_class?: string
+          created_at?: string
+          icone?: string
+          id: string
+          local?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          color_class?: string
+          created_at?: string
+          icone?: string
+          id?: string
+          local?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       locais: {
         Row: {
           created_at: string
