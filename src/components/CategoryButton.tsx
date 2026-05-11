@@ -39,6 +39,42 @@ export const CategoryButton = ({ id, nome, icone, color_class, normasCount = 0 }
       ring: "ring-[hsl(var(--apt-pink)/0.35)]",
       glow: "shadow-[0_8px_24px_-8px_hsl(var(--apt-pink)/0.55)]",
     },
+    purple: {
+      icon: "text-[hsl(var(--category-purple))]",
+      bg: "bg-gradient-to-br from-[hsl(var(--category-purple)/0.20)] to-[hsl(var(--category-purple)/0.05)]",
+      ring: "ring-[hsl(var(--category-purple)/0.35)]",
+      glow: "shadow-[0_8px_24px_-8px_hsl(var(--category-purple)/0.55)]",
+    },
+    red: {
+      icon: "text-[hsl(var(--category-red))]",
+      bg: "bg-gradient-to-br from-[hsl(var(--category-red)/0.20)] to-[hsl(var(--category-red)/0.05)]",
+      ring: "ring-[hsl(var(--category-red)/0.35)]",
+      glow: "shadow-[0_8px_24px_-8px_hsl(var(--category-red)/0.55)]",
+    },
+    yellow: {
+      icon: "text-[hsl(var(--category-yellow))]",
+      bg: "bg-gradient-to-br from-[hsl(var(--category-yellow)/0.22)] to-[hsl(var(--category-yellow)/0.05)]",
+      ring: "ring-[hsl(var(--category-yellow)/0.40)]",
+      glow: "shadow-[0_8px_24px_-8px_hsl(var(--category-yellow)/0.55)]",
+    },
+    teal: {
+      icon: "text-[hsl(var(--category-teal))]",
+      bg: "bg-gradient-to-br from-[hsl(var(--category-teal)/0.20)] to-[hsl(var(--category-teal)/0.05)]",
+      ring: "ring-[hsl(var(--category-teal)/0.35)]",
+      glow: "shadow-[0_8px_24px_-8px_hsl(var(--category-teal)/0.55)]",
+    },
+    indigo: {
+      icon: "text-[hsl(var(--category-indigo))]",
+      bg: "bg-gradient-to-br from-[hsl(var(--category-indigo)/0.20)] to-[hsl(var(--category-indigo)/0.05)]",
+      ring: "ring-[hsl(var(--category-indigo)/0.35)]",
+      glow: "shadow-[0_8px_24px_-8px_hsl(var(--category-indigo)/0.55)]",
+    },
+    gray: {
+      icon: "text-[hsl(var(--category-gray))]",
+      bg: "bg-gradient-to-br from-[hsl(var(--category-gray)/0.18)] to-[hsl(var(--category-gray)/0.05)]",
+      ring: "ring-[hsl(var(--category-gray)/0.35)]",
+      glow: "shadow-[0_8px_24px_-8px_hsl(var(--category-gray)/0.45)]",
+    },
   };
 
   const styles = colorStyles[color_class] || colorStyles.electric;
