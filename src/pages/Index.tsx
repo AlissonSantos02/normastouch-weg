@@ -92,7 +92,10 @@ const Index = () => {
                 className="animate-scale-in"
               >
                 <CategoryButton
-                  {...categoria}
+                  id={categoria.id}
+                  nome={categoria.nome}
+                  icone={categoria.icone}
+                  color_class={categoria.color_class}
                   normasCount={getNormasCount(categoria.id)}
                 />
               </div>

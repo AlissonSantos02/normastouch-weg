@@ -95,7 +95,10 @@ const Categoria = () => {
             </Button>
 
             <div className="flex items-center gap-3">
-              <span className="text-4xl">{categoria.icon}</span>
+              {(() => {
+                const Icon = ((LucideIcons as unknown as Record<string, LucideIcon>)[categoria.icone]) || FileText;
+                return <Icon className="h-9 w-9 text-primary" />;
+              })()}
               <h1 className="text-3xl font-bold">{categoria.nome}</h1>
             </div>
 
