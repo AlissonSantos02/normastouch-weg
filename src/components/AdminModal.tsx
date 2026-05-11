@@ -65,10 +65,16 @@ export const AdminModal = () => {
   ];
 
   const COLOR_OPTIONS = [
-    { value: "electric", label: "Azul (Elétrica)" },
-    { value: "mechanical", label: "Laranja (Mecânica)" },
-    { value: "process", label: "Verde (Processos)" },
-    { value: "apt", label: "Rosa (APT's)" },
+    { value: "electric", label: "Azul" },
+    { value: "mechanical", label: "Laranja" },
+    { value: "process", label: "Verde" },
+    { value: "apt", label: "Rosa" },
+    { value: "purple", label: "Roxo" },
+    { value: "red", label: "Vermelho" },
+    { value: "yellow", label: "Amarelo" },
+    { value: "teal", label: "Turquesa" },
+    { value: "indigo", label: "Índigo" },
+    { value: "gray", label: "Cinza" },
   ];
 
   const slugify = (s: string) =>
