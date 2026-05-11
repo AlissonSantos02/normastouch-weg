@@ -37,22 +37,29 @@ All colors MUST be HSL.
     --weg-text: 0 0% 20%;
     --weg-text-light: 0 0% 45%;
     
-    /* Category Colors - Subtle Technical */
-    --electric-blue: 205 100% 35%;
+    /* Category Colors */
+    --electric-blue: 205 100% 40%;
     --electric-blue-light: 205 100% 85%;
     --electric-blue-dark: 205 100% 25%;
-    
-    --mechanical-orange: 205 100% 35%;
-    --mechanical-orange-light: 205 100% 85%;
-    --mechanical-orange-dark: 205 100% 25%;
-    
+
+    --mechanical-orange: 24 95% 53%;
+    --mechanical-orange-light: 24 95% 85%;
+    --mechanical-orange-dark: 24 95% 40%;
+
     --process-green: 142 50% 45%;
     --process-green-light: 142 50% 85%;
     --process-green-dark: 142 50% 35%;
-    
-    --apt-pink: 205 100% 35%;
-    --apt-pink-light: 205 100% 85%;
-    --apt-pink-dark: 205 100% 25%;
+
+    --apt-pink: 330 80% 55%;
+    --apt-pink-light: 330 80% 85%;
+    --apt-pink-dark: 330 80% 40%;
+
+    --category-purple: 265 75% 55%;
+    --category-red: 0 80% 55%;
+    --category-yellow: 45 95% 50%;
+    --category-teal: 175 70% 40%;
+    --category-indigo: 235 70% 55%;
+    --category-gray: 220 10% 45%;
     
     /* Shadows - Subtle */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03);
