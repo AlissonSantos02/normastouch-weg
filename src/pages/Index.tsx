@@ -118,7 +118,7 @@ const Index = () => {
       <footer className="bg-card border-t border-border py-6">
         <div className="container mx-auto px-10 text-center text-sm text-muted-foreground">
           <p className="font-medium">
-            © 2025 WEG Equipamentos Elétricos • Painel Digital de Normas v1.0
+            © 2026 WEG Automação & Sistemas - Engenharia de Processos - Alisson Do Nascimento Santos 
           </p>
         </div>
       </footer>
