@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { NormasProvider } from "@/contexts/NormasContext";
+import { CategoriasProvider } from "@/contexts/CategoriasContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Categoria from "./pages/Categoria";
@@ -17,6 +18,7 @@ const App = () => (
     <TooltipProvider>
       <BrowserRouter>
         <AuthProvider>
+          <CategoriasProvider>
           <NormasProvider>
             <Toaster />
             <Sonner />
@@ -28,6 +30,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </NormasProvider>
+          </CategoriasProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

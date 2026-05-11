@@ -1,14 +1,17 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import { ArrowLeft, RefreshCw } from "lucide-react";
-import { categorias, Norma } from "@/data/normas";
+import { Norma } from "@/data/normas";
 import { SearchBar } from "@/components/SearchBar";
 import { NormaCard } from "@/components/NormaCard";
 import { PdfViewerModal } from "@/components/PdfViewerModal";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useNormas } from "@/contexts/NormasContext";
+import { useCategorias } from "@/contexts/CategoriasContext";
 import { useAuth } from "@/contexts/AuthContext";
+import * as LucideIcons from "lucide-react";
+import { FileText, LucideIcon } from "lucide-react";
 
 const Categoria = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +20,7 @@ const Categoria = () => {
   const [selectedNorma, setSelectedNorma] = useState<Norma | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const { normas, loading: normasLoading, refreshNormas } = useNormas();
+  const { categorias, loading: catLoading } = useCategorias();
   const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
@@ -52,7 +56,7 @@ const Categoria = () => {
     });
   };
 
-  if (authLoading || normasLoading) {
+  if (authLoading || normasLoading || catLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-lg">Carregando...</p>
@@ -91,7 +95,10 @@ const Categoria = () => {
             </Button>
 
             <div className="flex items-center gap-3">
-              <span className="text-4xl">{categoria.icon}</span>
+              {(() => {
+                const Icon = ((LucideIcons as unknown as Record<string, LucideIcon>)[categoria.icone]) || FileText;
+                return <Icon className="h-9 w-9 text-primary" />;
+              })()}
               <h1 className="text-3xl font-bold">{categoria.nome}</h1>
             </div>
 

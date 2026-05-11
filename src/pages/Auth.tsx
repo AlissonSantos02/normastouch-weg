@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { toast } from 'sonner';
 
 export default function Auth() {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,27 +27,10 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
-        toast.success('Login realizado com sucesso!');
-        navigate('/');
-      } else {
-        const redirectUrl = `${window.location.origin}/`;
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: redirectUrl,
-          },
-        });
-        if (error) throw error;
-        toast.success('Cadastro realizado! Você já pode fazer login.');
-        navigate('/');
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      toast.success('Login realizado com sucesso!');
+      navigate('/');
     } catch (error: any) {
       toast.error(error.message || 'Ocorreu um erro');
     } finally {
@@ -65,14 +47,8 @@ export default function Auth() {
             alt="WEG Logo" 
             className="h-16 mx-auto mb-4"
           />
-          <CardTitle className="text-2xl">
-            {isLogin ? 'Login' : 'Cadastro'}
-          </CardTitle>
-          <CardDescription>
-            {isLogin 
-              ? 'Entre com suas credenciais' 
-              : 'Crie sua conta para acessar o sistema'}
-          </CardDescription>
+          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardDescription>Entre com suas credenciais</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -100,19 +76,13 @@ export default function Auth() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Processando...' : isLogin ? 'Entrar' : 'Cadastrar'}
+              {loading ? 'Processando...' : 'Entrar'}
             </Button>
           </form>
           <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-primary hover:underline"
-            >
-              {isLogin 
-                ? 'Não tem conta? Cadastre-se' 
-                : 'Já tem conta? Faça login'}
-            </button>
+            <p className="text-xs text-muted-foreground">
+              Novos usuários são cadastrados pelo administrador no banco de dados alissona@weg.net .
+            </p>
           </div>
         </CardContent>
       </Card>

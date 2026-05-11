@@ -1,15 +1,16 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { categorias } from "@/data/normas";
 import { CategoryButton } from "@/components/CategoryButton";
 import { AdminModal } from "@/components/AdminModal";
 import { useNormas } from "@/contexts/NormasContext";
+import { useCategorias } from "@/contexts/CategoriasContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 
 const Index = () => {
   const { normas, loading: normasLoading } = useNormas();
+  const { categorias, loading: catLoading } = useCategorias();
   const { user, role, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -23,7 +24,7 @@ const Index = () => {
     return normas.filter((norma) => norma.categoria === categoriaId).length;
   };
 
-  if (authLoading || normasLoading) {
+  if (authLoading || normasLoading || catLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-lg">Carregando...</p>
@@ -55,7 +56,7 @@ const Index = () => {
                   Painel Digital de Normas
                 </h1>
                 <p className="text-white/80 text-base font-medium mt-2">
-                  Sistema de consulta rápida de documentos técnicos
+                  Sistema de consulta rápida de documentos técnicos.
                 </p>
               </div>
               <Button 
@@ -91,7 +92,10 @@ const Index = () => {
                 className="animate-scale-in"
               >
                 <CategoryButton
-                  {...categoria}
+                  id={categoria.id}
+                  nome={categoria.nome}
+                  icone={categoria.icone}
+                  color_class={categoria.color_class}
                   normasCount={getNormasCount(categoria.id)}
                 />
               </div>
@@ -114,7 +118,7 @@ const Index = () => {
       <footer className="bg-card border-t border-border py-6">
         <div className="container mx-auto px-10 text-center text-sm text-muted-foreground">
           <p className="font-medium">
-            © 2025 WEG Equipamentos Elétricos • Painel Digital de Normas v1.0
+            © 2026 WEG Automação & Sistemas - Engenharia de Processos - Alisson Do Nascimento Santos 
           </p>
         </div>
       </footer>

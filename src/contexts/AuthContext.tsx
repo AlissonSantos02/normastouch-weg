@@ -9,6 +9,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   role: UserRole | null;
+  local: string | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -19,6 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [role, setRole] = useState<UserRole | null>(null);
+  const [local, setLocal] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -33,9 +35,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.user) {
           setTimeout(() => {
             fetchUserRole(session.user.id);
+            fetchUserLocal(session.user.id);
           }, 0);
         } else {
           setRole(null);
+          setLocal(null);
           setLoading(false);
         }
       }
@@ -48,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (session?.user) {
         fetchUserRole(session.user.id);
+        fetchUserLocal(session.user.id);
       } else {
         setLoading(false);
       }
@@ -74,16 +79,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const fetchUserLocal = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('local')
+        .eq('user_id', userId)
+        .single();
+      if (error) throw error;
+      setLocal(data?.local ?? 'WEG ITAJAI');
+    } catch (error) {
+      console.error('Error fetching user local:', error);
+      setLocal('WEG ITAJAI');
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
     setRole(null);
+    setLocal(null);
     navigate('/auth');
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, role, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, role, local, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );
